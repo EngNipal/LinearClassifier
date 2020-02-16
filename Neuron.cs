@@ -30,7 +30,7 @@ namespace LinearClassifier
                 }
                 else
                 {
-                    Console.WriteLine("А у вас ошибка! Количество входных Inputs больше, чем установлено для нейрона");
+                    Console.WriteLine("А у вас ошибка! Количество входных Inputs не соответствует количеству, установленному для нейрона");
                     // Exception
                 }
             }
@@ -52,7 +52,7 @@ namespace LinearClassifier
                 }
                 else
                 {
-                    Console.WriteLine("А у вас ошибка! Количество входных Weights больше, чем установлено для нейрона");
+                    Console.WriteLine("А у вас ошибка! Количество входных Weights не соответствует количеству, установленному для нейрона");
                     // Exception
                 }
             }
