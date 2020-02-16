@@ -25,7 +25,8 @@ namespace LinearClassifier
                 {
                     for (int i = 0; i < value.Capacity; i++)
                     {
-                        _inputs.Add(value[i]);
+                        double element = value[i];
+                        _inputs.Add(element);
                     }
                 }
                 else
@@ -47,7 +48,8 @@ namespace LinearClassifier
                 {
                     for (int i = 0; i < value.Capacity; i++)
                     {
-                        _weights[i] = value[i];
+                        double element = value[i];
+                        _weights[i] = element;
                     }
                 }
                 else

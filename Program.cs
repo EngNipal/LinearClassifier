@@ -10,7 +10,7 @@ namespace LinearClassifier
     {
         static void Main(string[] args)
         {
-
+            
         }
     }
 }

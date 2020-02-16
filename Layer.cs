@@ -31,7 +31,8 @@ namespace LinearClassifier
                 {
                     for (int i = 0; i < _setOfNeurons.Capacity; i++)
                     {
-                        _setOfNeurons.Add(value[i]);
+                        Neuron element = value[i];
+                        _setOfNeurons.Add(element);
                     }
                 }
                 else
