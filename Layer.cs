@@ -8,7 +8,7 @@ namespace LinearClassifier
 {
     class Layer
     {
-        // Конструкторы слоя, обязательно требующие количество нейронов
+        // Конструкторы слоя, обязательно требующие количество нейронов.
         public Layer(int NumberOfNeurons) : this (NumberOfNeurons, _layerName)
         { }
         public Layer(int NumberOfNeurons, string name)
@@ -16,7 +16,7 @@ namespace LinearClassifier
             _numberOfNeurons = NumberOfNeurons;
             _layerName = name;
         }
-        // Количество нейронов
+        // Количество нейронов.
         private static int _numberOfNeurons { get; set; }
         private List<Neuron> _setOfNeurons = new List<Neuron>(_numberOfNeurons);
         public List<Neuron> SetOfNeurons
@@ -25,8 +25,8 @@ namespace LinearClassifier
             { return _setOfNeurons; }
             set
             {
-                bool _volume = value.Capacity == _setOfNeurons.Capacity;    // Проверка соответствия объёмов
-                bool _type = true;                                          // TODO: Написать проверку соответствия типов
+                bool _volume = value.Capacity == _setOfNeurons.Capacity;    // Проверка соответствия объёмов.
+                bool _type = true;                                          // TODO: Написать проверку соответствия типов.
                 if (_volume && _type)
                 {
                     for (int i = 0; i < _setOfNeurons.Capacity; i++)
@@ -50,7 +50,7 @@ namespace LinearClassifier
             { return _layerName; }
             set
             {
-                bool _type = true;                                          // TODO: Написать проверку соответствия типов
+                bool _type = true;                                          // TODO: Написать проверку соответствия типов.
                 if (_type)
                 {
                     _layerName = value;
@@ -58,11 +58,47 @@ namespace LinearClassifier
                 else
                 {
                     Console.WriteLine("А у вас ошибка! Вы вводите/передаёте не строку для имени слоя");
-                    // Exception
+                    // Exception.
                 }
             }
         }
-        // Метод регуляризации весов слоя
+        // Метод нелинейности ReLu.
+        public List<double> ReLu()
+        {
+            const double k = 0.001;
+            List<double> relu = new List<double>(_numberOfNeurons);
+            foreach (Neuron neuron in _setOfNeurons)
+            {
+                neuron.Summator();
+                double output = neuron.Output;
+                if (output <= 1 && output >= 0)
+                {
+                    relu.Add(output);
+                }
+                else if (output < 0)
+                {
+                    relu.Add(output * k);
+                }
+                else
+                {
+                    relu.Add(output * k + (1 - k));
+                }
+            }
+            return relu;
+        }
+        // Метод нелинейности Sigmoid.
+        public List<double> Sigmoid()
+        {
+            List<double> sigmoid = new List<double>(_numberOfNeurons);
+            foreach (Neuron neuron in _setOfNeurons)
+            {
+                neuron.Summator();
+                double output = neuron.Output;
+                sigmoid.Add(1 / (1 + Math.Exp(-output)));
+            }
+            return sigmoid;
+        }
+        // Метод регуляризации весов слоя.
         public double Regularization()
         {
             double sum = 0.0;

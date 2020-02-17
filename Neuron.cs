@@ -65,7 +65,7 @@ namespace LinearClassifier
         {
             get
             { return _bias; }
-            private set
+            set
             { _bias = value; }
         }
         // Сумматор
