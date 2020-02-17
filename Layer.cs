@@ -58,6 +58,7 @@ namespace LinearClassifier
                 else
                 {
                     Console.WriteLine("А у вас ошибка! Вы вводите/передаёте не строку для имени слоя");
+                    // Exception
                 }
             }
         }

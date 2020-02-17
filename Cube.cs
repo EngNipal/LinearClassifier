@@ -94,126 +94,126 @@ namespace LinearClassifier
             _state[13] = _state[14];
             _state[14] = Changer;
         }
-        //public void U()
-        //{
-        //    byte Changer;
-        //    Changer = _state[1, 0];
-        //    _state[1, 0] = _state[2, 0];
-        //    _state[2, 0] = _state[3, 0];
-        //    _state[3, 0] = _state[4, 0];
-        //    _state[4, 0] = Changer;
-        //    Changer = _state[1, 1];
-        //    _state[1, 1] = _state[2, 1];
-        //    _state[2, 1] = _state[3, 1];
-        //    _state[3, 1] = _state[4, 1];
-        //    _state[4, 1] = Changer;
-        //    Changer = _state[0, 0];
-        //    _state[0, 0] = _state[0, 2];
-        //    _state[0, 2] = _state[0, 3];
-        //    _state[0, 3] = _state[0, 1];
-        //    _state[0, 1] = Changer;
-        //}
-        //public void Up()
-        //{
-        //    byte Changer;
-        //    Changer = _state[1, 0];
-        //    _state[1, 0] = _state[4, 0];
-        //    _state[4, 0] = _state[3, 0];
-        //    _state[3, 0] = _state[2, 0];
-        //    _state[2, 0] = Changer;
-        //    Changer = _state[1, 1];
-        //    _state[1, 1] = _state[4, 1];
-        //    _state[4, 1] = _state[3, 1];
-        //    _state[3, 1] = _state[2, 1];
-        //    _state[2, 1] = Changer;
-        //    Changer = _state[0, 0];
-        //    _state[0, 0] = _state[0, 1];
-        //    _state[0, 1] = _state[0, 3];
-        //    _state[0, 3] = _state[0, 2];
-        //    _state[0, 2] = Changer;
-        //}
-        //public void U2()
-        //{
-        //    byte Changer;
-        //    Changer = _state[1, 0];
-        //    _state[1, 0] = _state[3, 0];
-        //    _state[3, 0] = Changer;
-        //    Changer = _state[2, 0];
-        //    _state[2, 0] = _state[4, 0];
-        //    _state[4, 0] = Changer;
-        //    Changer = _state[1, 1];
-        //    _state[1, 1] = _state[3, 1];
-        //    _state[3, 1] = Changer;
-        //    Changer = _state[2, 1];
-        //    _state[2, 1] = _state[4, 1];
-        //    _state[4, 1] = Changer;
-        //    Changer = _state[0, 0];
-        //    _state[0, 0] = _state[0, 3];
-        //    _state[0, 3] = Changer;
-        //    Changer = _state[0, 1];
-        //    _state[0, 1] = _state[0, 2];
-        //    _state[0, 2] = Changer;
-        //}
-        //public void F()
-        //{
-        //    byte Changer;
-        //    Changer = _state[0, 2];
-        //    _state[0, 2] = _state[1, 3];
-        //    _state[1, 3] = _state[5, 1];
-        //    _state[5, 1] = _state[3, 0];
-        //    _state[3, 0] = Changer;
-        //    Changer = _state[0, 3];
-        //    _state[0, 3] = _state[1, 1];
-        //    _state[1, 1] = _state[5, 0];
-        //    _state[5, 0] = _state[3, 2];
-        //    _state[3, 2] = Changer;
-        //    Changer = _state[2, 0];
-        //    _state[2, 0] = _state[2, 2];
-        //    _state[2, 2] = _state[2, 3];
-        //    _state[2, 3] = _state[2, 1];
-        //    _state[2, 1] = Changer;
-        //}
-        //public void Fp()
-        //{
-        //    byte Changer;
-        //    Changer = _state[0, 2];
-        //    _state[0, 2] = _state[3, 0];
-        //    _state[3, 0] = _state[5, 1];
-        //    _state[5, 1] = _state[1, 3];
-        //    _state[1, 3] = Changer;
-        //    Changer = _state[0, 3];
-        //    _state[0, 3] = _state[3, 2];
-        //    _state[3, 2] = _state[5, 0];
-        //    _state[5, 0] = _state[1, 1];
-        //    _state[1, 1] = Changer;
-        //    Changer = _state[2, 0];
-        //    _state[2, 0] = _state[2, 1];
-        //    _state[2, 1] = _state[2, 3];
-        //    _state[2, 3] = _state[2, 2];
-        //    _state[2, 2] = Changer;
-        //}
-        //public void F2()
-        //{
-        //    byte Changer;
-        //    Changer = _state[0, 2];
-        //    _state[0, 2] = _state[5, 1];
-        //    _state[5, 1] = Changer;
-        //    Changer = _state[1, 3];
-        //    _state[1, 3] = _state[3, 0];
-        //    _state[3, 0] = Changer;
-        //    Changer = _state[0, 3];
-        //    _state[0, 3] = _state[5, 0];
-        //    _state[5, 0] = Changer;
-        //    Changer = _state[1, 1];
-        //    _state[1, 1] = _state[3, 2];
-        //    _state[3, 2] = Changer;
-        //    Changer = _state[2, 0];
-        //    _state[2, 0] = _state[2, 3];
-        //    _state[2, 3] = Changer;
-        //    Changer = _state[2, 1];
-        //    _state[2, 1] = _state[2, 2];
-        //    _state[2, 2] = Changer;
-        //}
+        public void U()
+        {
+            int Changer;
+            Changer = _state[4];
+            _state[4] = _state[8];
+            _state[8] = _state[12];
+            _state[12] = _state[16];
+            _state[16] = Changer;
+            Changer = _state[5];
+            _state[5] = _state[9];
+            _state[9] = _state[13];
+            _state[13] = _state[17];
+            _state[17] = Changer;
+            Changer = _state[0];
+            _state[0] = _state[2];
+            _state[2] = _state[3];
+            _state[3] = _state[1];
+            _state[1] = Changer;
+        }
+        public void Up()
+        {
+            int Changer;
+            Changer = _state[4];
+            _state[4] = _state[16];
+            _state[16] = _state[12];
+            _state[12] = _state[8];
+            _state[8] = Changer;
+            Changer = _state[5];
+            _state[5] = _state[17];
+            _state[17] = _state[13];
+            _state[13] = _state[9];
+            _state[9] = Changer;
+            Changer = _state[0];
+            _state[0] = _state[1];
+            _state[1] = _state[3];
+            _state[3] = _state[2];
+            _state[2] = Changer;
+        }
+        public void U2()
+        {
+            int Changer;
+            Changer = _state[4];
+            _state[4] = _state[12];
+            _state[12] = Changer;
+            Changer = _state[8];
+            _state[8] = _state[16];
+            _state[16] = Changer;
+            Changer = _state[5];
+            _state[5] = _state[13];
+            _state[13] = Changer;
+            Changer = _state[9];
+            _state[9] = _state[17];
+            _state[17] = Changer;
+            Changer = _state[0];
+            _state[0] = _state[3];
+            _state[3] = Changer;
+            Changer = _state[1];
+            _state[1] = _state[2];
+            _state[2] = Changer;
+        }
+        public void F()
+        {
+            int Changer;
+            Changer = _state[2];
+            _state[2] = _state[7];
+            _state[7] = _state[21];
+            _state[21] = _state[12];
+            _state[12] = Changer;
+            Changer = _state[3];
+            _state[3] = _state[5];
+            _state[5] = _state[20];
+            _state[20] = _state[14];
+            _state[14] = Changer;
+            Changer = _state[8];
+            _state[8] = _state[10];
+            _state[10] = _state[11];
+            _state[11] = _state[9];
+            _state[9] = Changer;
+        }
+        public void Fp()
+        {
+            int Changer;
+            Changer = _state[2];
+            _state[2] = _state[12];
+            _state[12] = _state[21];
+            _state[21] = _state[11];
+            _state[11] = Changer;
+            Changer = _state[3];
+            _state[3] = _state[14];
+            _state[14] = _state[20];
+            _state[20] = _state[5];
+            _state[5] = Changer;
+            Changer = _state[8];
+            _state[8] = _state[9];
+            _state[9] = _state[11];
+            _state[11] = _state[10];
+            _state[10] = Changer;
+        }
+        public void F2()
+        {
+            int Changer;
+            Changer = _state[2];
+            _state[2] = _state[21];
+            _state[21] = Changer;
+            Changer = _state[7];
+            _state[7] = _state[12];
+            _state[12] = Changer;
+            Changer = _state[3];
+            _state[3] = _state[20];
+            _state[20] = Changer;
+            Changer = _state[5];
+            _state[5] = _state[14];
+            _state[14] = Changer;
+            Changer = _state[8];
+            _state[8] = _state[11];
+            _state[11] = Changer;
+            Changer = _state[8];
+            _state[9] = _state[10];
+            _state[10] = Changer;
+        }
         //Метод задаёт решённое состояние куба
         internal void SetSolved()
         {
