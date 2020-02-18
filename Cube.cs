@@ -217,7 +217,7 @@ namespace LinearClassifier
         //Метод задаёт решённое состояние куба
         internal void SetSolved()
         {
-            for (byte i = 0; i < _state.Capacity; i+=4)
+            for (byte i = 0; i < _state.Count; i+=4)
             {
                 _state[i] = 1 + i % 4;
                 _state[i + 1] = 1 + i % 4;
@@ -230,7 +230,7 @@ namespace LinearClassifier
         {
             bool flag = true;
             int i = 0;
-            while (flag && (i < _state.Capacity))
+            while (flag && (i < _state.Count))
             {
                 int n = 1 + i % 4;
                 if (_state[i] != n || _state[i + 1] != n || _state[i +2] != n || _state[i + 3] != n )

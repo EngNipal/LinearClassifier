@@ -10,9 +10,18 @@ namespace LinearClassifier
     {
         // Конструктор нейрона, требующий количество входов на нейрон.
         public Neuron (int NumberOfInputs)
-        { _numberOfInputs = NumberOfInputs; }
+        { this.NumberOfInputs = NumberOfInputs; }
         // Количество входов нейрона.
         private static int _numberOfInputs { get; set; }
+        public int NumberOfInputs
+        {
+            get
+            { return _numberOfInputs; }
+            set
+            {
+                _numberOfInputs = value;
+            }
+        }
         // Набор входных значений.
         private List<double> _inputs = new List<double>(_numberOfInputs);
         public List<double> Inputs
@@ -21,9 +30,9 @@ namespace LinearClassifier
             { return _inputs; }
             set
             {
-                if (value.Capacity == _inputs.Capacity)
+                if (value.Count == _inputs.Count)
                 {
-                    for (int i = 0; i < value.Capacity; i++)
+                    for (int i = 0; i < value.Count; i++)
                     {
                         double element = value[i];
                         _inputs.Add(element);
@@ -44,9 +53,9 @@ namespace LinearClassifier
             { return _weights; }
             set
             {
-                if (value.Capacity == _weights.Capacity)
+                if (value.Count == _weights.Count)
                 {
-                    for (int i = 0; i < value.Capacity; i++)
+                    for (int i = 0; i < value.Count; i++)
                     {
                         double element = value[i];
                         _weights[i] = element;
@@ -72,7 +81,7 @@ namespace LinearClassifier
         internal void Summator()
         {
             _output = 0.0;
-            for (int i = 0; i < _weights.Capacity; i++)
+            for (int i = 0; i < _weights.Count; i++)
             {
                 _output += _weights[i] * _inputs[i];
             }

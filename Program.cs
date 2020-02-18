@@ -23,22 +23,22 @@ namespace LinearClassifier
             Layer Layer_1 = new Layer(Layer_1_Dimension, "Alone");
             for (int i = 0; i < Layer_1_Dimension; i++)
             {
-                Layer_1.SetOfNeurons[i] = new Neuron(TaskDimension);
+                Layer_1.Neurons[i] = new Neuron(TaskDimension);
                 for (int j = 0; j < TaskDimension; j++)
                 {
-                    Layer_1.SetOfNeurons[i].Weights[j] = Rnd.NextDouble();
+                    Layer_1.Neurons[i].Weights[j] = Rnd.NextDouble();
                 }
-                Layer_1.SetOfNeurons[i].Bias = Rnd.NextDouble();
+                Layer_1.Neurons[i].Bias = Rnd.NextDouble();
             }
             Layer OutputLayer = new Layer(OutputDimension, "Out");
             for (int i = 0; i < OutputDimension; i++)
             {
-                OutputLayer.SetOfNeurons[i] = new Neuron(Layer_1_Dimension);
+                OutputLayer.Neurons[i] = new Neuron(Layer_1_Dimension);
                 for (int j = 0; j < TaskDimension; j++)
                 {
-                    OutputLayer.SetOfNeurons[i].Weights[j] = Rnd.NextDouble();
+                    OutputLayer.Neurons[i].Weights[j] = Rnd.NextDouble();
                 }
-                OutputLayer.SetOfNeurons[i].Bias = Rnd.NextDouble();
+                OutputLayer.Neurons[i].Bias = Rnd.NextDouble();
             }
             // ----- Генерация скрамбла рандомайзером -----            
             int ScrLength;
@@ -86,17 +86,42 @@ namespace LinearClassifier
             {
                 for (int j = 0; j < TaskDimension; j++)
                 {
-                    Layer_1.SetOfNeurons[i].Inputs[j] = TrainCube.State[j];
+                    Layer_1.Neurons[i].Inputs[j] = TrainCube.State[j];
                 }
             }
+            // Функция нелинейности
             Layer_1_Output = Layer_1.ReLu();
             // Layer_1_Output = Layer_1.Sigmoid();
             // Передаём выход первого слоя на вход нейронам выходного слоя.
+            // Считаем выходное значение каждого нейрона (метод Summator).
+            double sum = 0.0;
+            foreach (Neuron neuron in OutputLayer.Neurons)
+            {
+                neuron.Inputs = Layer_1_Output;
+                neuron.Summator();
+                sum += Math.Exp(neuron.Output);
+            }
+            List<double> Policy = new List<double>(OutputDimension);
+            double Softmax = 0.0;
+            int ResultMove = 0;
             for (int i = 0; i < OutputDimension; i++)
             {
-                OutputLayer.SetOfNeurons[i].Inputs = Layer_1_Output;
+                Policy.Add(Math.Exp(OutputLayer.Neurons[i].Output) / sum);
+                if (Policy[i] > Softmax)
+                {
+                    Softmax = Policy[i];
+                    ResultMove = i + 1;
+                }
             }
-                                                                                                // TODO: Написать софтмакс.
+            Console.WriteLine("Был сгенерирован следующий скрамбл:");
+            int index = 0;
+            while (Scramble[index] > 0)
+            {
+                Console.Write(Scramble[index] + " ");
+                index++;
+            }
+            Console.WriteLine();
+            Console.WriteLine($"Итоговый ход: {ResultMove}");
         } // end Main
         // Метод, делающий ход с номером N на передаваемом кубе
         static void MakeAMoveNumberN(Cube SomeCube, int N)

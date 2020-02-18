@@ -11,28 +11,37 @@ namespace LinearClassifier
         // Конструкторы слоя, обязательно требующие количество нейронов.
         public Layer(int NumberOfNeurons) : this (NumberOfNeurons, _layerName)
         { }
-        public Layer(int NumberOfNeurons, string name)
+        public Layer(int NumberOfNeurons, string LayerName)
         {
-            _numberOfNeurons = NumberOfNeurons;
-            _layerName = name;
+            this.NumberOfNeurons = NumberOfNeurons;
+            this.LayerName = LayerName;
         }
         // Количество нейронов.
         private static int _numberOfNeurons { get; set; }
-        private List<Neuron> _setOfNeurons = new List<Neuron>(_numberOfNeurons);
-        public List<Neuron> SetOfNeurons
+        public int NumberOfNeurons
         {
             get
-            { return _setOfNeurons; }
+            { return _numberOfNeurons; }
             set
             {
-                bool _volume = value.Capacity == _setOfNeurons.Capacity;    // Проверка соответствия объёмов.
+                _numberOfNeurons = value;
+            }
+        }
+        private List<Neuron> _neurons = new List<Neuron>(_numberOfNeurons);
+        public List<Neuron> Neurons
+        {
+            get
+            { return _neurons; }
+            set
+            {
+                bool _volume = value.Capacity == _neurons.Capacity;    // Проверка соответствия объёмов.
                 bool _type = true;                                          // TODO: Написать проверку соответствия типов.
                 if (_volume && _type)
                 {
-                    for (int i = 0; i < _setOfNeurons.Capacity; i++)
+                    for (int i = 0; i < _neurons.Capacity; i++)
                     {
                         Neuron element = value[i];
-                        _setOfNeurons.Add(element);
+                        _neurons.Add(element);
                     }
                 }
                 else
@@ -67,7 +76,7 @@ namespace LinearClassifier
         {
             const double k = 0.001;
             List<double> relu = new List<double>(_numberOfNeurons);
-            foreach (Neuron neuron in _setOfNeurons)
+            foreach (Neuron neuron in _neurons)
             {
                 neuron.Summator();
                 double output = neuron.Output;
@@ -90,7 +99,7 @@ namespace LinearClassifier
         public List<double> Sigmoid()
         {
             List<double> sigmoid = new List<double>(_numberOfNeurons);
-            foreach (Neuron neuron in _setOfNeurons)
+            foreach (Neuron neuron in _neurons)
             {
                 neuron.Summator();
                 double output = neuron.Output;
@@ -102,7 +111,7 @@ namespace LinearClassifier
         public double Regularization()
         {
             double sum = 0.0;
-            foreach (Neuron neuron in _setOfNeurons)
+            foreach (Neuron neuron in _neurons)
             {
                 for (int i =0; i < neuron.Weights.Capacity; i++)
                 {
