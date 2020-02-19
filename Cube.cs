@@ -214,25 +214,26 @@ namespace LinearClassifier
             _state[9] = _state[10];
             _state[10] = Changer;
         }
-        //Метод задаёт решённое состояние куба
+        //Метод задаёт решённое состояние куба                                  TODO: Переделать метод.
         internal void SetSolved()
         {
-            for (byte i = 0; i < _state.Count; i+=4)
+            for (byte i = 0; i < _state.Capacity; i++)
             {
-                _state[i] = 1 + i % 4;
-                _state[i + 1] = 1 + i % 4;
-                _state[i + 2] = 1 + i % 4;
-                _state[i + 3] = 1 + i % 4;
+                int mod = (int) (i / 4);
+                State.Add(1 + mod);
+                //State[i + 1] = 1 + mod;
+                //State[i + 2] = 1 + mod;
+                //State[i + 3] = 1 + mod;
             }
         }
-        //Метод проверяет, является ли текущее состояние куба решённым
+        //Метод проверяет, является ли текущее состояние куба решённым           TODO: Переделать метод.
         internal bool IsSolved()
         {
             bool flag = true;
             int i = 0;
-            while (flag && (i < _state.Count))
+            while (flag && (i < _state.Capacity))
             {
-                int n = 1 + i % 4;
+                int n = 1 + i / 4;
                 if (_state[i] != n || _state[i + 1] != n || _state[i +2] != n || _state[i + 3] != n )
                 {
                     flag = false;

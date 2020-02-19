@@ -21,24 +21,25 @@ namespace LinearClassifier
 
             // Создание слоёв, наполнение их нейронами и инициализация весов нейронов.
             Layer Layer_1 = new Layer(Layer_1_Dimension, "Alone");
-            for (int i = 0; i < Layer_1_Dimension; i++)
+            //for (int i = 0; i < Layer_1_Dimension; i++)
+            foreach (Neuron neuron in Layer_1.Neurons)
             {
-                Layer_1.Neurons[i] = new Neuron(TaskDimension);
+                neuron.NumberOfInputs = TaskDimension;
                 for (int j = 0; j < TaskDimension; j++)
                 {
-                    Layer_1.Neurons[i].Weights[j] = Rnd.NextDouble();
+                    neuron.Weights[j] = Rnd.NextDouble();
                 }
-                Layer_1.Neurons[i].Bias = Rnd.NextDouble();
+                neuron.Bias = Rnd.NextDouble();
             }
             Layer OutputLayer = new Layer(OutputDimension, "Out");
-            for (int i = 0; i < OutputDimension; i++)
+            foreach (Neuron neuron in OutputLayer.Neurons)
             {
-                OutputLayer.Neurons[i] = new Neuron(Layer_1_Dimension);
-                for (int j = 0; j < TaskDimension; j++)
+                neuron.NumberOfInputs = Layer_1_Dimension;
+                for (int j = 0; j < Layer_1_Dimension; j++)
                 {
-                    OutputLayer.Neurons[i].Weights[j] = Rnd.NextDouble();
+                    neuron.Weights[j] = Rnd.NextDouble();
                 }
-                OutputLayer.Neurons[i].Bias = Rnd.NextDouble();
+                neuron.Bias = Rnd.NextDouble();
             }
             // ----- Генерация скрамбла рандомайзером -----            
             int ScrLength;
