@@ -20,21 +20,18 @@ namespace LinearClassifier
             Random Rnd = new Random();                                              // Рандомайзер.
 
             // Создание слоёв, наполнение их нейронами и инициализация весов нейронов.
-            Layer Layer_1 = new Layer(Layer_1_Dimension, "Alone");
-            //for (int i = 0; i < Layer_1_Dimension; i++)
+            Layer Layer_1 = new Layer(Layer_1_Dimension, "Alone", TaskDimension);
             foreach (Neuron neuron in Layer_1.Neurons)
             {
-                neuron.NumberOfInputs = TaskDimension;
                 for (int j = 0; j < TaskDimension; j++)
                 {
                     neuron.Weights[j] = Rnd.NextDouble();
                 }
                 neuron.Bias = Rnd.NextDouble();
             }
-            Layer OutputLayer = new Layer(OutputDimension, "Out");
+            Layer OutputLayer = new Layer(OutputDimension, "Out", Layer_1_Dimension);
             foreach (Neuron neuron in OutputLayer.Neurons)
             {
-                neuron.NumberOfInputs = Layer_1_Dimension;
                 for (int j = 0; j < Layer_1_Dimension; j++)
                 {
                     neuron.Weights[j] = Rnd.NextDouble();

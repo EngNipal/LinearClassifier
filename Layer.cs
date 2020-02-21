@@ -9,12 +9,19 @@ namespace LinearClassifier
     class Layer
     {
         // Конструкторы слоя, обязательно требующие количество нейронов.
-        public Layer(int NumberOfNeurons) : this (NumberOfNeurons, _layerName)
+        public Layer(int NumberOfNeurons) : this(NumberOfNeurons, _layerName)
         { }
-        public Layer(int NumberOfNeurons, string LayerName)
+        public Layer(int NumberOfNeurons, string LayerName) : this(NumberOfNeurons, _layerName, _numberOfNeuronInputs)
+        { }
+        public Layer(int NumberOfNeurons, string LayerName, int NumberOfNeuronInputs)
         {
             this.NumberOfNeurons = NumberOfNeurons;
             this.LayerName = LayerName;
+            Neuron ObjectNeuron = new Neuron (NumberOfNeuronInputs);
+            for (int i = 0; i < NumberOfNeurons; i++)
+            {
+                Neurons.Add(ObjectNeuron);
+            }
         }
         // Количество нейронов.
         private static int _numberOfNeurons { get; set; }
@@ -27,6 +34,7 @@ namespace LinearClassifier
                 _numberOfNeurons = value;
             }
         }
+        // Набор нейронов
         private List<Neuron> _neurons = new List<Neuron>(_numberOfNeurons);
         public List<Neuron> Neurons
         {
@@ -49,6 +57,17 @@ namespace LinearClassifier
                     Console.WriteLine($"А у вас ошибка! Количество или тип входных Neurons не соответствует количеству, установленному для слоя {_layerName}");
                     // Exception
                 }
+            }
+        }
+        // Количество входов на нейрон
+        private static int _numberOfNeuronInputs { get; set; }
+        public int NumberOfNeuronInputs
+        {
+            private get
+            { return _numberOfNeuronInputs; }
+            set
+            {
+                _numberOfNeuronInputs = value;
             }
         }
         // Имя слоя

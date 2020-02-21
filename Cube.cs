@@ -214,16 +214,54 @@ namespace LinearClassifier
             _state[9] = _state[10];
             _state[10] = Changer;
         }
-        //Метод задаёт решённое состояние куба                                  TODO: Переделать метод.
+        //Метод задаёт решённое состояние куба.
         internal void SetSolved()
         {
-            for (byte i = 0; i < _state.Capacity; i++)
+            _state.Clear();
+            for (int i = 0; i < _state.Capacity; i++)
             {
-                int mod = (int) (i / 4);
-                State.Add(1 + mod);
-                //State[i + 1] = 1 + mod;
-                //State[i + 2] = 1 + mod;
-                //State[i + 3] = 1 + mod;
+                switch (i + 1)
+                {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                        _state.Add(1);
+                    break;
+                    case 5:
+                    case 6:
+                    case 7:
+                    case 8:
+                        _state.Add(2);
+                    break;
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12:
+                        _state.Add(3);
+                    break;
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                        _state.Add(4);
+                    break;
+                    case 17:
+                    case 18:
+                    case 19:
+                    case 20:
+                        _state.Add(5);
+                    break;
+                    case 21:
+                    case 22:
+                    case 23:
+                    case 24:
+                        _state.Add(6);
+                    break;
+                    default:
+                        Console.WriteLine("Что-то пошло не так с кубом в методе SetSolved");
+                    break;
+                }
             }
         }
         //Метод проверяет, является ли текущее состояние куба решённым           TODO: Переделать метод.
