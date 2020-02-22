@@ -8,16 +8,19 @@ namespace LinearClassifier
 {
     class Layer
     {
-        // Конструкторы слоя, обязательно требующие количество нейронов.
-        public Layer(int NumberOfNeurons) : this(NumberOfNeurons, _layerName)
+        // Конструкторы слоя
+        public Layer() : this(_numberOfNeurons)
         { }
-        public Layer(int NumberOfNeurons, string LayerName) : this(NumberOfNeurons, _layerName, _numberOfNeuronInputs)
+        public Layer(int NumberOfNeurons) : this(NumberOfNeurons, _numberOfNeuronInputs)
         { }
-        public Layer(int NumberOfNeurons, string LayerName, int NumberOfNeuronInputs)
+        public Layer(int NumberOfNeurons, int NumberOfNeuronInputs) : this(NumberOfNeurons, _numberOfNeuronInputs, _layerName)
+        { }
+        public Layer(int NumberOfNeurons, int NumberOfNeuronInputs, string LayerName)
         {
             this.NumberOfNeurons = NumberOfNeurons;
+            this.NumberOfNeuronInputs = NumberOfNeuronInputs;
             this.LayerName = LayerName;
-            Neuron ObjectNeuron = new Neuron (NumberOfNeuronInputs);
+            Neuron ObjectNeuron = new Neuron(NumberOfNeuronInputs);
             for (int i = 0; i < NumberOfNeurons; i++)
             {
                 Neurons.Add(ObjectNeuron);
@@ -42,15 +45,12 @@ namespace LinearClassifier
             { return _neurons; }
             set
             {
-                bool _volume = value.Capacity == _neurons.Capacity;    // Проверка соответствия объёмов.
+                bool _volume = value.Capacity == _neurons.Capacity;         // Проверка соответствия объёмов.
                 bool _type = true;                                          // TODO: Написать проверку соответствия типов.
                 if (_volume && _type)
                 {
-                    for (int i = 0; i < _neurons.Capacity; i++)
-                    {
-                        Neuron element = value[i];
-                        _neurons.Add(element);
-                    }
+                    List<Neuron> element = value;
+                    _neurons = (element);
                 }
                 else
                 {
@@ -59,7 +59,7 @@ namespace LinearClassifier
                 }
             }
         }
-        // Количество входов на нейрон
+        // Количество входов на нейрон.
         private static int _numberOfNeuronInputs { get; set; }
         public int NumberOfNeuronInputs
         {
@@ -68,6 +68,20 @@ namespace LinearClassifier
             set
             {
                 _numberOfNeuronInputs = value;
+            }
+        }
+        // Инициализация весов слоя случайными значениями.
+        internal void WeightsInitialization()
+        {
+            Random Rnd = new Random();
+            for (int i = 0; i < NumberOfNeurons; i++)
+            {
+                for (int j = 0; j < NumberOfNeuronInputs; j++)
+                {
+                    double d = Rnd.NextDouble();
+                    Neurons[i].Weights[j] = d;
+                }
+                Neurons[i].Bias = Rnd.NextDouble();
             }
         }
         // Имя слоя
@@ -95,6 +109,7 @@ namespace LinearClassifier
         {
             const double k = 0.001;
             List<double> relu = new List<double>(_numberOfNeurons);
+            relu.Clear();
             foreach (Neuron neuron in _neurons)
             {
                 neuron.Summator();

@@ -20,29 +20,16 @@ namespace LinearClassifier
             Random Rnd = new Random();                                              // Рандомайзер.
 
             // Создание слоёв, наполнение их нейронами и инициализация весов нейронов.
-            Layer Layer_1 = new Layer(Layer_1_Dimension, "Alone", TaskDimension);
-            foreach (Neuron neuron in Layer_1.Neurons)
-            {
-                for (int j = 0; j < TaskDimension; j++)
-                {
-                    neuron.Weights[j] = Rnd.NextDouble();
-                }
-                neuron.Bias = Rnd.NextDouble();
-            }
-            Layer OutputLayer = new Layer(OutputDimension, "Out", Layer_1_Dimension);
-            foreach (Neuron neuron in OutputLayer.Neurons)
-            {
-                for (int j = 0; j < Layer_1_Dimension; j++)
-                {
-                    neuron.Weights[j] = Rnd.NextDouble();
-                }
-                neuron.Bias = Rnd.NextDouble();
-            }
+            // Первый слой.
+            Layer Layer_1 = new Layer(Layer_1_Dimension, TaskDimension, "Alone");
+            Layer_1.WeightsInitialization();
+            // Выходной слой.
+            Layer OutputLayer = new Layer(OutputDimension, Layer_1_Dimension, "Out");
+            OutputLayer.WeightsInitialization();
             // ----- Генерация скрамбла рандомайзером -----            
             int ScrLength;
-            ScrLength = Rnd.Next(1, 10);  // Рандомная длина скрамбла от 1 до 10
-
-            // массив запоминает скрамбл
+            ScrLength = Rnd.Next(1, 10);  // Рандомная длина скрамбла от 1 до 10.
+            // Массив запоминает скрамбл.
             int[] Scramble = new int[10];
             for (byte i = 0; i < ScrLength; i++)
             {
@@ -87,7 +74,7 @@ namespace LinearClassifier
                     Layer_1.Neurons[i].Inputs[j] = TrainCube.State[j];
                 }
             }
-            // Функция нелинейности
+            // Функция нелинейности.
             Layer_1_Output = Layer_1.ReLu();
             // Layer_1_Output = Layer_1.Sigmoid();
             // Передаём выход первого слоя на вход нейронам выходного слоя.

@@ -264,12 +264,12 @@ namespace LinearClassifier
                 }
             }
         }
-        //Метод проверяет, является ли текущее состояние куба решённым           TODO: Переделать метод.
+        //Метод проверяет, является ли текущее состояние куба решённым           TODO: Возможно стоит переделать метод.
         internal bool IsSolved()
         {
             bool flag = true;
             int i = 0;
-            while (flag && (i < _state.Capacity))
+            while (flag && (i < _state.Count))
             {
                 int n = 1 + i / 4;
                 if (_state[i] != n || _state[i + 1] != n || _state[i +2] != n || _state[i + 3] != n )
@@ -283,7 +283,7 @@ namespace LinearClassifier
         //Метод выводит текущее состояние куба в консоль
         internal void Print()
         {
-            for (int i = 0; i < _state.Capacity; i++)
+            for (int i = 0; i < _state.Count; i++)
             {
                 Console.Write(_state[i] + " ");
             }

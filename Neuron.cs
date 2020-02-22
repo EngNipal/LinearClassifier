@@ -8,9 +8,20 @@ namespace LinearClassifier
 {
     public class Neuron
     {
+        //public Neuron() : this(_numberOfInputs)
+        //{ }
         // Конструктор нейрона, требующий количество входов на нейрон.
         public Neuron (int NumberOfInputs)
-        { this.NumberOfInputs = NumberOfInputs; }
+        {
+            this.NumberOfInputs = NumberOfInputs;
+            double startValue = 0.0;
+            for (int i = 0; i < NumberOfInputs; i++)
+            {
+                Inputs.Add(startValue);
+                Weights.Add(startValue);
+                //Inputs.ForEach();
+            }
+        }
         // Количество входов нейрона.
         private static int _numberOfInputs { get; set; }
         public int NumberOfInputs
@@ -32,11 +43,8 @@ namespace LinearClassifier
             {
                 if (value.Count == _inputs.Count)
                 {
-                    for (int i = 0; i < value.Count; i++)
-                    {
-                        double element = value[i];
-                        _inputs.Add(element);
-                    }
+                    List<double> element = value;
+                    _inputs = element;
                 }
                 else
                 {
@@ -55,11 +63,8 @@ namespace LinearClassifier
             {
                 if (value.Count == _weights.Count)
                 {
-                    for (int i = 0; i < value.Count; i++)
-                    {
-                        double element = value[i];
-                        _weights[i] = element;
-                    }
+                    List<double> element = value;
+                    _weights = element;
                 }
                 else
                 {
