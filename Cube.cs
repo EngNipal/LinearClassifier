@@ -34,7 +34,7 @@ namespace LinearClassifier
             }
         }
         // Далее методы, реализующие ходы (R, R' - Rp, R2, U, U', U2, F, F', F2).
-        public void R()
+        public void MoveR()
         {
             int Changer;
             Changer = _state[1];
@@ -53,7 +53,7 @@ namespace LinearClassifier
             _state[15] = _state[13];
             _state[13] = Changer;
         }
-        public void Rp()
+        public void MoveRp()
         {
             int Changer;
             Changer = _state[1];
@@ -72,7 +72,7 @@ namespace LinearClassifier
             _state[15] = _state[14];
             _state[14] = Changer;
         }
-        public void R2()
+        public void MoveR2()
         {
             int Changer;
             Changer = _state[1];
@@ -94,7 +94,7 @@ namespace LinearClassifier
             _state[13] = _state[14];
             _state[14] = Changer;
         }
-        public void U()
+        public void MoveU()
         {
             int Changer;
             Changer = _state[4];
@@ -113,7 +113,7 @@ namespace LinearClassifier
             _state[3] = _state[1];
             _state[1] = Changer;
         }
-        public void Up()
+        public void MoveUp()
         {
             int Changer;
             Changer = _state[4];
@@ -132,7 +132,7 @@ namespace LinearClassifier
             _state[3] = _state[2];
             _state[2] = Changer;
         }
-        public void U2()
+        public void MoveU2()
         {
             int Changer;
             Changer = _state[4];
@@ -154,7 +154,7 @@ namespace LinearClassifier
             _state[1] = _state[2];
             _state[2] = Changer;
         }
-        public void F()
+        public void MoveF()
         {
             int Changer;
             Changer = _state[2];
@@ -173,7 +173,7 @@ namespace LinearClassifier
             _state[11] = _state[9];
             _state[9] = Changer;
         }
-        public void Fp()
+        public void MoveFp()
         {
             int Changer;
             Changer = _state[2];
@@ -192,7 +192,7 @@ namespace LinearClassifier
             _state[11] = _state[10];
             _state[10] = Changer;
         }
-        public void F2()
+        public void MoveF2()
         {
             int Changer;
             Changer = _state[2];
@@ -272,11 +272,11 @@ namespace LinearClassifier
             while (flag && (i < _state.Count))
             {
                 int n = 1 + i / 4;
-                if (_state[i] != n || _state[i + 1] != n || _state[i +2] != n || _state[i + 3] != n )
+                if (_state[i] != n)
                 {
                     flag = false;
                 }
-                i+=4;
+                i++;
             }
             return flag;
         }

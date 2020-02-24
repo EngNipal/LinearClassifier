@@ -78,12 +78,12 @@ namespace LinearClassifier
             Layer_1_Output = Layer_1.ReLu();
             // Layer_1_Output = Layer_1.Sigmoid();
             // Передаём выход первого слоя на вход нейронам выходного слоя.
-            // Считаем выходное значение каждого нейрона (метод Summator).
+            // Считаем выходное значение каждого нейрона (метод SetOutputSum).
             double sum = 0.0;
             foreach (Neuron neuron in OutputLayer.Neurons)
             {
                 neuron.Inputs = Layer_1_Output;
-                neuron.Summator();
+                neuron.SetOutputSum();
                 sum += Math.Exp(neuron.Output);
             }
             List<double> Policy = new List<double>(OutputDimension);
@@ -109,36 +109,36 @@ namespace LinearClassifier
             Console.WriteLine($"Итоговый ход: {ResultMove}");
         } // end Main
         // Метод, делающий ход с номером N на передаваемом кубе
-        static void MakeAMoveNumberN(Cube SomeCube, int N)
+        static void MakeAMoveNumberN(Cube SomeCube, int MoveLabel)
         {
-            switch (N)
+            switch (MoveLabel)
             {
                 case 1:
-                    SomeCube.R();
+                    SomeCube.MoveR();
                     break;
                 case 2:
-                    SomeCube.Rp();
+                    SomeCube.MoveRp();
                     break;
                 case 3:
-                    SomeCube.R2();
+                    SomeCube.MoveR2();
                     break;
                 case 4:
-                    SomeCube.U();
+                    SomeCube.MoveU();
                     break;
                 case 5:
-                    SomeCube.Up();
+                    SomeCube.MoveUp();
                     break;
                 case 6:
-                    SomeCube.U2();
+                    SomeCube.MoveU2();
                     break;
                 case 7:
-                    SomeCube.F();
+                    SomeCube.MoveF();
                     break;
                 case 8:
-                    SomeCube.Fp();
+                    SomeCube.MoveFp();
                     break;
                 case 9:
-                    SomeCube.F2();
+                    SomeCube.MoveF2();
                     break;
             }
         }

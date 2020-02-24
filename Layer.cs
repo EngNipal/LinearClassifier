@@ -8,26 +8,26 @@ namespace LinearClassifier
 {
     class Layer
     {
-        // Конструкторы слоя
-        public Layer() : this(_numberOfNeurons)
-        { }
-        public Layer(int NumberOfNeurons) : this(NumberOfNeurons, _numberOfNeuronInputs)
-        { }
-        public Layer(int NumberOfNeurons, int NumberOfNeuronInputs) : this(NumberOfNeurons, _numberOfNeuronInputs, _layerName)
-        { }
+        //Конструкторы слоя
+        //public Layer() : this(_numberOfNeurons)
+        //{ }
+        //public Layer(int NumberOfNeurons) : this(NumberOfNeurons, _numberOfNeuronInputs)
+        //{ }
+        //public Layer(int NumberOfNeurons, int NumberOfNeuronInputs) : this(NumberOfNeurons, _numberOfNeuronInputs, _layerName)
+        //{ }
         public Layer(int NumberOfNeurons, int NumberOfNeuronInputs, string LayerName)
         {
             this.NumberOfNeurons = NumberOfNeurons;
             this.NumberOfNeuronInputs = NumberOfNeuronInputs;
             this.LayerName = LayerName;
-            Neuron ObjectNeuron = new Neuron(NumberOfNeuronInputs);
             for (int i = 0; i < NumberOfNeurons; i++)
             {
+                Neuron ObjectNeuron = new Neuron(NumberOfNeuronInputs);
                 Neurons.Add(ObjectNeuron);
             }
         }
         // Количество нейронов.
-        private static int _numberOfNeurons { get; set; }
+        private int _numberOfNeurons { get; set; }
         public int NumberOfNeurons
         {
             get
@@ -38,15 +38,15 @@ namespace LinearClassifier
             }
         }
         // Набор нейронов
-        private List<Neuron> _neurons = new List<Neuron>(_numberOfNeurons);
+        private List<Neuron> _neurons = new List<Neuron>();
         public List<Neuron> Neurons
         {
             get
             { return _neurons; }
             set
             {
-                bool _volume = value.Capacity == _neurons.Capacity;         // Проверка соответствия объёмов.
-                bool _type = true;                                          // TODO: Написать проверку соответствия типов.
+                bool _volume = value.Count == _neurons.Count;         // Проверка соответствия объёмов.
+                bool _type = true;                                    // TODO: Написать проверку соответствия типов.
                 if (_volume && _type)
                 {
                     List<Neuron> element = value;
@@ -60,7 +60,7 @@ namespace LinearClassifier
             }
         }
         // Количество входов на нейрон.
-        private static int _numberOfNeuronInputs { get; set; }
+        private int _numberOfNeuronInputs { get; set; }
         public int NumberOfNeuronInputs
         {
             private get
@@ -70,22 +70,22 @@ namespace LinearClassifier
                 _numberOfNeuronInputs = value;
             }
         }
+        private static Random _random = new Random();
         // Инициализация весов слоя случайными значениями.
         internal void WeightsInitialization()
         {
-            Random Rnd = new Random();
-            for (int i = 0; i < NumberOfNeurons; i++)
+            for (int i = 0; i < _numberOfNeurons; i++)
             {
-                for (int j = 0; j < NumberOfNeuronInputs; j++)
+                for (int j = 0; j < _numberOfNeuronInputs; j++)
                 {
-                    double d = Rnd.NextDouble();
+                    double d = _random.NextDouble();
                     Neurons[i].Weights[j] = d;
                 }
-                Neurons[i].Bias = Rnd.NextDouble();
+                Neurons[i].Bias = _random.NextDouble();
             }
         }
         // Имя слоя
-        private static string _layerName {get; set;}
+        private string _layerName {get; set;}
         public string LayerName
         {
             get
@@ -112,7 +112,7 @@ namespace LinearClassifier
             relu.Clear();
             foreach (Neuron neuron in _neurons)
             {
-                neuron.Summator();
+                neuron.SetOutputSum();
                 double output = neuron.Output;
                 if (output <= 1 && output >= 0)
                 {
@@ -132,14 +132,14 @@ namespace LinearClassifier
         // Метод нелинейности Sigmoid.
         public List<double> Sigmoid()
         {
-            List<double> sigmoid = new List<double>(_numberOfNeurons);
+            List<double> _sigmoid = new List<double>(_numberOfNeurons);
             foreach (Neuron neuron in _neurons)
             {
-                neuron.Summator();
-                double output = neuron.Output;
-                sigmoid.Add(1 / (1 + Math.Exp(-output)));
+                neuron.SetOutputSum();
+                double _output = neuron.Output;
+                _sigmoid.Add(1 / (1 + Math.Exp(-_output)));
             }
-            return sigmoid;
+            return _sigmoid;
         }
         // Метод регуляризации весов слоя.
         public double Regularization()

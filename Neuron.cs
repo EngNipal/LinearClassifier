@@ -23,7 +23,7 @@ namespace LinearClassifier
             }
         }
         // Количество входов нейрона.
-        private static int _numberOfInputs { get; set; }
+        private int _numberOfInputs { get; set; }
         public int NumberOfInputs
         {
             get
@@ -34,7 +34,7 @@ namespace LinearClassifier
             }
         }
         // Набор входных значений.
-        private List<double> _inputs = new List<double>(_numberOfInputs);
+        private List<double> _inputs = new List<double>();
         public List<double> Inputs
         {
             get
@@ -54,7 +54,7 @@ namespace LinearClassifier
             }
         }
         // Набор весов.
-        private List<double> _weights = new List<double>(_numberOfInputs);
+        private List<double> _weights = new List<double>();
         public List<double> Weights
         {
             get
@@ -75,7 +75,7 @@ namespace LinearClassifier
         }
         // Вес смещения.
         private double _bias { get; set; }
-        public double Bias
+        public double Bias                              // TODO: Написать проверки.
         {
             get
             { return _bias; }
@@ -83,7 +83,7 @@ namespace LinearClassifier
             { _bias = value; }
         }
         // Сумматор
-        internal void Summator()
+        internal void SetOutputSum()
         {
             _output = 0.0;
             for (int i = 0; i < _weights.Count; i++)
