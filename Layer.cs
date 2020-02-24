@@ -78,8 +78,7 @@ namespace LinearClassifier
             {
                 for (int j = 0; j < _numberOfNeuronInputs; j++)
                 {
-                    double d = _random.NextDouble();
-                    Neurons[i].Weights[j] = d;
+                    Neurons[i].Weights[j] = _random.NextDouble();
                 }
                 Neurons[i].Bias = _random.NextDouble();
             }
@@ -112,9 +111,9 @@ namespace LinearClassifier
             relu.Clear();
             foreach (Neuron neuron in _neurons)
             {
-                neuron.SetOutputSum();
+                neuron.SetOutput();
                 double output = neuron.Output;
-                if (output <= 1 && output >= 0)
+                if (output <= 100 && output >= 0)
                 {
                     relu.Add(output);
                 }
@@ -124,7 +123,7 @@ namespace LinearClassifier
                 }
                 else
                 {
-                    relu.Add(output * k + (1 - k));
+                    relu.Add(output * k + 100 * (1 - k));
                 }
             }
             return relu;
@@ -135,7 +134,7 @@ namespace LinearClassifier
             List<double> _sigmoid = new List<double>(_numberOfNeurons);
             foreach (Neuron neuron in _neurons)
             {
-                neuron.SetOutputSum();
+                neuron.SetOutput();
                 double _output = neuron.Output;
                 _sigmoid.Add(1 / (1 + Math.Exp(-_output)));
             }

@@ -12,12 +12,15 @@ namespace LinearClassifier
         {
             Cube TrainCube = new Cube();                                            // Создание куба.
             TrainCube.SetSolved();                                                  // Установка исходной позиции.
+
             int TaskDimension = TrainCube.State.Capacity;                           // Объём входных данных.
+            const int MoveQuantity = 10;                                            // Количество ходов, которые делает сеть, прежде, чем получит feedback.
             const int Layer_1_Dimension = 64;                                       // Размер первого слоя.
             const int OutputDimension = 9;                                          // Размер выходного слоя.
             List<double> Layer_1_Output = new List<double>(Layer_1_Dimension);      // Выходные значения первого слоя.
             List<double> OutputLayer_Output = new List<double>(OutputDimension);    // Выходные значения выходного слоя.
             Random Rnd = new Random();                                              // Рандомайзер.
+            double[,] Policy = new double[MoveQuantity, OutputDimension];           // Набор значений Policy на выходном слое.
 
             // Создание слоёв, наполнение их нейронами и инициализация весов нейронов.
             // Первый слой.
@@ -55,7 +58,7 @@ namespace LinearClassifier
                             else
                             { Scramble[i] = Rnd.Next((int)Moves.F, (int)Moves.F2); }
                             break;
-                        default:                        
+                        default:
                             Console.WriteLine("Получен неверный номер хода! Номер должен быть от 1 до 9.");
                             break;
                     }
@@ -64,39 +67,7 @@ namespace LinearClassifier
                 {
                     Scramble[i] = Rnd.Next(1, 9);
                 }
-                MakeAMoveNumberN(TrainCube, Scramble[i]);               // Скрамблим куб
-            }
-            // Передаём состояние куба на вход всем нейронам первого слоя.
-            for (int i = 0; i < Layer_1_Dimension; i++)
-            {
-                for (int j = 0; j < TaskDimension; j++)
-                {
-                    Layer_1.Neurons[i].Inputs[j] = TrainCube.State[j];
-                }
-            }
-            // Функция нелинейности.
-            Layer_1_Output = Layer_1.ReLu();
-            // Layer_1_Output = Layer_1.Sigmoid();
-            // Передаём выход первого слоя на вход нейронам выходного слоя.
-            // Считаем выходное значение каждого нейрона (метод SetOutputSum).
-            double sum = 0.0;
-            foreach (Neuron neuron in OutputLayer.Neurons)
-            {
-                neuron.Inputs = Layer_1_Output;
-                neuron.SetOutputSum();
-                sum += Math.Exp(neuron.Output);
-            }
-            List<double> Policy = new List<double>(OutputDimension);
-            double Softmax = 0.0;
-            int ResultMove = 0;
-            for (int i = 0; i < OutputDimension; i++)
-            {
-                Policy.Add(Math.Exp(OutputLayer.Neurons[i].Output) / sum);
-                if (Policy[i] > Softmax)
-                {
-                    Softmax = Policy[i];
-                    ResultMove = i + 1;
-                }
+                MakeAMoveByLabel(TrainCube, Scramble[i]);               // Скрамблим куб
             }
             Console.WriteLine("Был сгенерирован следующий скрамбл:");
             int index = 0;
@@ -106,10 +77,118 @@ namespace LinearClassifier
                 index++;
             }
             Console.WriteLine();
-            Console.WriteLine($"Итоговый ход: {ResultMove}");
+            // Rollout - Основной прогон, генерирующий набор из MoveQuantity ходов.
+            int[] NetworkMoves = new int[MoveQuantity];                             // Набор ходов, выданных сетью за 1 роллаут.
+            int RolloutMove_i = 0;
+            while (RolloutMove_i < MoveQuantity && !TrainCube.IsSolved())
+            {
+                // Передаём состояние куба на вход всем нейронам первого слоя.
+                for (int i = 0; i < Layer_1_Dimension; i++)
+                {
+                    for (int j = 0; j < TaskDimension; j++)
+                    {
+                        Layer_1.Neurons[i].Inputs[j] = TrainCube.State[j];
+                    }
+                }
+                // Функция нелинейности.
+                Layer_1_Output = Layer_1.ReLu();
+                //Layer_1_Output = Layer_1.Sigmoid();          // - Другая функция нелинейности.
+                // Передаём выход первого слоя на вход нейронам выходного слоя.
+                // Считаем выходное значение каждого нейрона (метод SetOutput).
+                double SumOfExponents = 0.0;
+                double Average = 0.0;
+                foreach (Neuron neuron in OutputLayer.Neurons)
+                {
+                    neuron.Inputs = Layer_1_Output;
+                    neuron.SetOutput();
+                    OutputLayer_Output.Add(neuron.Output);
+                    Average += neuron.Output;
+                }
+                Average /= OutputDimension;
+                foreach (Neuron neuron in OutputLayer.Neurons)
+                {
+                    SumOfExponents += Math.Exp(neuron.Output - Average);
+                }
+                double Softmax = 0.0;
+                int ResultMove = 0;
+                for (int i = 0; i < OutputDimension; i++)
+                {
+                    Policy[RolloutMove_i, i] = (Math.Exp(OutputLayer.Neurons[i].Output - Average) / SumOfExponents);
+                    if (Policy[RolloutMove_i, i] > Softmax)
+                    {
+                        Softmax = Policy[RolloutMove_i, i];
+                        ResultMove = i + 1;
+                    }
+                }
+                NetworkMoves[RolloutMove_i] = ResultMove;
+                MakeAMoveByLabel(TrainCube, ResultMove);
+                Console.WriteLine($"Ход сети №{RolloutMove_i + 1}: {ResultMove}");
+                Console.ReadLine();
+                OutputLayer_Output.Clear();
+                RolloutMove_i++;
+            } // end Rollout.
+
+            // --------------------
+            // ----- ОБУЧЕНИЕ -----
+            // --------------------
+            const double LearningRate = 0.1;
+            int Reward;
+            if (TrainCube.IsSolved())
+            {
+                Reward = 1;
+            }
+            else
+            {
+                Reward = -1;
+            }
+            for (int LearningMove_i = 0; LearningMove_i < MoveQuantity; LearningMove_i++)
+            {
+                // Определение Loss-функции.
+                double[] LossFunction = new double[MoveQuantity];
+                for (int i = 0; i < MoveQuantity; i++)
+                {
+                    LossFunction[LearningMove_i] -= Math.Log(Policy[LearningMove_i, i]);
+                }
+                LossFunction[LearningMove_i] *= Reward;                                     // Позже добавить регуляризацию.
+                // Градиент Loss-функции по выходам OutputLayer.
+                // Передаётся только туда, где был выдан ход. Остальным - ноль.
+                double[] GradLossOverOutput = new double[OutputDimension];
+                for (int i = 1; i <= OutputDimension; i++)
+                {
+                    if (i == NetworkMoves[LearningMove_i])
+                    {
+                        GradLossOverOutput[i] = (Policy[LearningMove_i, i] - 1) * Reward;
+                    }
+                    else
+                    {
+                        GradLossOverOutput[i] = 0;
+                    }
+                }
+                // Градиент Loss-функции по весам выходного слоя.
+                // Равен GradLossOverOutput умноженному на транспонированный инпут выходного слоя (т.е. аутпут первого).
+                double[,] GradLossOverOutputWeights = new double[OutputDimension, Layer_1_Dimension];
+                for (int i = 0; i < OutputDimension; i++)
+                {
+                    for (int j = 0; j < Layer_1_Dimension; j++)
+                    {
+                        GradLossOverOutputWeights[i, j] = GradLossOverOutput[i] * Layer_1_Output[j];
+                    }
+                }
+                // Корректируем веса выходного слоя.
+                for (int i = 0; i < OutputDimension; i++)
+                {
+                    for (int j = 0; j < Layer_1_Dimension; j++)
+                    {
+                        OutputLayer.Neurons[i].Weights[j] -= GradLossOverOutputWeights[i, j] * LearningRate;
+                    }
+                    OutputLayer.Neurons[i].Bias -= GradLossOverOutput[i] * LearningRate;
+                }
+                // Градиент Loss-функции по ReLu первого слоя.
+
+            }
         } // end Main
-        // Метод, делающий ход с номером N на передаваемом кубе
-        static void MakeAMoveNumberN(Cube SomeCube, int MoveLabel)
+        // Метод, делающий ход с меткой MoveLabel на передаваемом кубе
+        static void MakeAMoveByLabel(Cube SomeCube, int MoveLabel)
         {
             switch (MoveLabel)
             {

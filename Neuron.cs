@@ -83,7 +83,7 @@ namespace LinearClassifier
             { _bias = value; }
         }
         // Сумматор
-        internal void SetOutputSum()
+        internal void SetOutput()
         {
             _output = 0.0;
             for (int i = 0; i < _weights.Count; i++)
