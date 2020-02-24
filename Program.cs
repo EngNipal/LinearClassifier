@@ -152,40 +152,83 @@ namespace LinearClassifier
                 LossFunction[LearningMove_i] *= Reward;                                     // Позже добавить регуляризацию.
                 // Градиент Loss-функции по выходам OutputLayer.
                 // Передаётся только туда, где был выдан ход. Остальным - ноль.
-                double[] GradLossOverOutput = new double[OutputDimension];
+                double[] GradOutput = new double[OutputDimension];
                 for (int i = 1; i <= OutputDimension; i++)
                 {
                     if (i == NetworkMoves[LearningMove_i])
                     {
-                        GradLossOverOutput[i] = (Policy[LearningMove_i, i] - 1) * Reward;
+                        GradOutput[i] = (Policy[LearningMove_i, i] - 1) * Reward;
                     }
                     else
                     {
-                        GradLossOverOutput[i] = 0;
+                        GradOutput[i] = 0;
                     }
                 }
                 // Градиент Loss-функции по весам выходного слоя.
-                // Равен GradLossOverOutput умноженному на транспонированный инпут выходного слоя (т.е. аутпут первого).
-                double[,] GradLossOverOutputWeights = new double[OutputDimension, Layer_1_Dimension];
+                // Равен GradOutput умноженному на транспонированный инпут выходного слоя (т.е. аутпут первого).
+                double[,] GradWeightsOutput = new double[OutputDimension, Layer_1_Dimension];
                 for (int i = 0; i < OutputDimension; i++)
                 {
                     for (int j = 0; j < Layer_1_Dimension; j++)
                     {
-                        GradLossOverOutputWeights[i, j] = GradLossOverOutput[i] * Layer_1_Output[j];
+                        GradWeightsOutput[i, j] = GradOutput[i] * Layer_1_Output[j];
                     }
                 }
-                // Корректируем веса выходного слоя.
-                for (int i = 0; i < OutputDimension; i++)
+                // Градиент Loss-функции по выходным значениям первого слоя.
+                // Равен транспонированным весам выходного слоя, умноженным на GradOutput.
+                double[] GradOutputLayer1 = new double[Layer_1_Dimension];
+                for (int i = 0; i < Layer_1_Dimension; i++)
                 {
-                    for (int j = 0; j < Layer_1_Dimension; j++)
+                    for (int j = 0; j < OutputDimension; j++)
                     {
-                        OutputLayer.Neurons[i].Weights[j] -= GradLossOverOutputWeights[i, j] * LearningRate;
+                        GradOutputLayer1[i] += OutputLayer.Neurons[j].Weights[i] * GradOutput[i];
                     }
-                    OutputLayer.Neurons[i].Bias -= GradLossOverOutput[i] * LearningRate;
                 }
-                // Градиент Loss-функции по ReLu первого слоя.
+                // Градиент Loss-функции по Relu первого слоя.
+                double[] GradReluLayer1 = new double[Layer_1_Dimension];
+                for (int i = 0; i < Layer_1_Dimension; i++)
+                {
+                    double temp = Layer_1.Neurons[i].Output;
+                    if (temp >= 0 && temp <= 100)
+                    {
+                        GradReluLayer1[i] = GradOutputLayer1[i];
+                    }
+                    else
+                    {
+                        GradReluLayer1[i] = 0.001 * GradOutputLayer1[i];
+                    }
+                }
+                // Градиент Loss-функции по весам первого слоя.
+                double[,] GradWeightsLayer1 = new double[Layer_1_Dimension, TaskDimension];
+                for (int i = 0; i < Layer_1_Dimension; i++)
+                {
+                    for (int j = 0; j < TaskDimension; j++)
+                    {
+                        GradWeightsLayer1[i, j] = GradReluLayer1[i] * TrainCube.State[j];
+                    }
+                }
+                // TODO: Перенести "обёрточные" циклы из 2х2. - Когда берётся набор сделанных ходов и проходим по кубу при обучении.
 
-            }
+
+                // Корректируем веса выходного слоя.
+                // Именно в таком порядке - не раньше, чем посчитаем все градиенты.
+                for (int i = 0; i < OutputDimension; i++)
+                {
+                    for (int j = 0; j < Layer_1_Dimension; j++)
+                    {
+                        OutputLayer.Neurons[i].Weights[j] -= GradWeightsOutput[i, j] * LearningRate;
+                    }
+                    OutputLayer.Neurons[i].Bias -= GradOutput[i] * LearningRate;
+                }
+                // Корректируем веса первого слоя.
+                for (int i = 0; i < Layer_1_Dimension; i++)
+                {
+                    for (int j = 0; j < TaskDimension; j++)
+                    {
+                        Layer_1.Neurons[i].Weights[j] -= GradWeightsLayer1[i, j] * LearningRate;
+                    }
+                }
+            } // end for train.
         } // end Main
         // Метод, делающий ход с меткой MoveLabel на передаваемом кубе
         static void MakeAMoveByLabel(Cube SomeCube, int MoveLabel)
