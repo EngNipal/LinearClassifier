@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
 
 namespace LinearClassifier
 {
     class Layer
     {
-        //Конструкторы слоя
-        //public Layer() : this(_numberOfNeurons)
-        //{ }
-        //public Layer(int NumberOfNeurons) : this(NumberOfNeurons, _numberOfNeuronInputs)
-        //{ }
-        //public Layer(int NumberOfNeurons, int NumberOfNeuronInputs) : this(NumberOfNeurons, _numberOfNeuronInputs, _layerName)
-        //{ }
-        public Layer(int NumberOfNeurons, int NumberOfNeuronInputs, string LayerName)
+        //Конструктор слоя
+        public Layer(int NumberOfNeurons, int NumberOfNeuronInputs)
         {
             this.NumberOfNeurons = NumberOfNeurons;
             this.NumberOfNeuronInputs = NumberOfNeuronInputs;
-            this.LayerName = LayerName;
             for (int i = 0; i < NumberOfNeurons; i++)
             {
                 Neuron ObjectNeuron = new Neuron(NumberOfNeuronInputs);
@@ -54,8 +44,7 @@ namespace LinearClassifier
                 }
                 else
                 {
-                    Console.WriteLine($"А у вас ошибка! Количество или тип входных Neurons не соответствует количеству, установленному для слоя {_layerName}");
-                    // Exception
+                    Console.WriteLine("А у вас ошибка! Количество или тип входных Neurons не соответствует количеству, установленному для слоя");
                 }
             }
         }
@@ -83,47 +72,28 @@ namespace LinearClassifier
                 Neurons[i].Bias = _random.NextDouble();
             }
         }
-        // Имя слоя
-        private string _layerName {get; set;}
-        public string LayerName
-        {
-            get
-            { return _layerName; }
-            set
-            {
-                bool _type = true;                                          // TODO: Написать проверку соответствия типов.
-                if (_type)
-                {
-                    _layerName = value;
-                }
-                else
-                {
-                    Console.WriteLine("А у вас ошибка! Вы вводите/передаёте не строку для имени слоя");
-                    // Exception.
-                }
-            }
-        }
         // Метод нелинейности ReLu.
+        private const double Slope = 0.001;
+        private const int Offset = 100;
         public List<double> ReLu()
         {
-            const double k = 0.001;
             List<double> relu = new List<double>(_numberOfNeurons);
             relu.Clear();
             foreach (Neuron neuron in _neurons)
             {
                 neuron.SetOutput();
                 double output = neuron.Output;
-                if (output <= 100 && output >= 0)
+                if (output <= Offset && output >= 0)
                 {
                     relu.Add(output);
                 }
                 else if (output < 0)
                 {
-                    relu.Add(output * k);
+                    relu.Add(output * Slope);
                 }
                 else
                 {
-                    relu.Add(output * k + 100 * (1 - k));
+                    relu.Add(output * Slope + Offset * (1 - Slope));
                 }
             }
             return relu;

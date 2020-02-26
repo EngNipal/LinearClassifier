@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
 
 namespace LinearClassifier
 {
     public class Neuron
     {
-        //public Neuron() : this(_numberOfInputs)
-        //{ }
         // Конструктор нейрона, требующий количество входов на нейрон.
         public Neuron (int NumberOfInputs)
         {

@@ -8,6 +8,7 @@ namespace LinearClassifier
 {
     class Program
     {
+        static Random Rnd = new Random();
         static void Main(string[] args)
         {
             Cube TrainCube = new Cube();                                            // Создание куба.
@@ -19,68 +20,27 @@ namespace LinearClassifier
             const int OutputDimension = 9;                                          // Размер выходного слоя.
             List<double> Layer_1_Output = new List<double>(Layer_1_Dimension);      // Выходные значения первого слоя.
             List<double> OutputLayer_Output = new List<double>(OutputDimension);    // Выходные значения выходного слоя.
-            Random Rnd = new Random();                                              // Рандомайзер.
             double[,] Policy = new double[MoveQuantity, OutputDimension];           // Набор значений Policy на выходном слое.
 
             // Создание слоёв, наполнение их нейронами и инициализация весов нейронов.
             // Первый слой.
-            Layer Layer_1 = new Layer(Layer_1_Dimension, TaskDimension, "Alone");
+            Layer Layer_1 = new Layer(Layer_1_Dimension, TaskDimension);
             Layer_1.WeightsInitialization();
             // Выходной слой.
-            Layer OutputLayer = new Layer(OutputDimension, Layer_1_Dimension, "Out");
+            Layer OutputLayer = new Layer(OutputDimension, Layer_1_Dimension);
             OutputLayer.WeightsInitialization();
-            // ----- Генерация скрамбла рандомайзером -----            
+            // Создаём скрамбл.
             int ScrLength;
-            ScrLength = Rnd.Next(1, 10);  // Рандомная длина скрамбла от 1 до 10.
-            // Массив запоминает скрамбл.
+            ScrLength = Rnd.Next(1, 10);                                            // Рандомная длина скрамбла от 1 до 10.
             int[] Scramble = new int[10];
-            for (byte i = 0; i < ScrLength; i++)
-            {
-                if (i > 0)
-                {
-                    switch (Scramble[i - 1])
-                    {
-                        case 1:
-                        case 2:
-                        case 3:
-                            Scramble[i] = Rnd.Next((int)Moves.U, (int)Moves.F2);
-                            break;
-                        case 7:
-                        case 8:
-                        case 9:
-                            Scramble[i] = Rnd.Next((int)Moves.R, (int)Moves.U2);
-                            break;
-                        case 4:
-                        case 5:
-                        case 6:
-                            if (Rnd.NextDouble() < 0.5)
-                            { Scramble[i] = Rnd.Next((int)Moves.R, (int)Moves.R2); }
-                            else
-                            { Scramble[i] = Rnd.Next((int)Moves.F, (int)Moves.F2); }
-                            break;
-                        default:
-                            Console.WriteLine("Получен неверный номер хода! Номер должен быть от 1 до 9.");
-                            break;
-                    }
-                }
-                else
-                {
-                    Scramble[i] = Rnd.Next(1, 9);
-                }
-                MakeAMoveByLabel(TrainCube, Scramble[i]);               // Скрамблим куб
-            }
-            Console.WriteLine("Был сгенерирован следующий скрамбл:");
-            int index = 0;
-            while (Scramble[index] > 0)
-            {
-                Console.Write(Scramble[index] + " ");
-                index++;
-            }
-            Console.WriteLine();
+            Scramble = GetScramble(ScrLength);
+            WriteScramble(Scramble);
+            // Скрамблим куб.
+            SetScramble(TrainCube, Scramble);
             // Rollout - Основной прогон, генерирующий набор из MoveQuantity ходов.
             int[] NetworkMoves = new int[MoveQuantity];                             // Набор ходов, выданных сетью за 1 роллаут.
             int RolloutMove_i = 0;
-            while (RolloutMove_i < MoveQuantity && !TrainCube.IsSolved())
+            while (RolloutMove_i < MoveQuantity && !TrainCube.IsSolved())           // TODO: Вынести роллаут в отдельный метод или класс.
             {
                 // Передаём состояние куба на вход всем нейронам первого слоя.
                 for (int i = 0; i < Layer_1_Dimension; i++)
@@ -121,15 +81,15 @@ namespace LinearClassifier
                     }
                 }
                 NetworkMoves[RolloutMove_i] = ResultMove;
-                MakeAMoveByLabel(TrainCube, ResultMove);
+                MakeMove(TrainCube, ResultMove);
                 Console.WriteLine($"Ход сети №{RolloutMove_i + 1}: {ResultMove}");
                 Console.ReadLine();
                 OutputLayer_Output.Clear();
                 RolloutMove_i++;
-            } // end Rollout.
+            }       // end Rollout.
 
             // --------------------
-            // ----- ОБУЧЕНИЕ -----
+            // ----- ОБУЧЕНИЕ -----                                                 // TODO: вынести обучение в отдельный класс.
             // --------------------
             const double LearningRate = 0.1;
             int Reward;
@@ -230,8 +190,8 @@ namespace LinearClassifier
                 }
             } // end for train.
         } // end Main
-        // Метод, делающий ход с меткой MoveLabel на передаваемом кубе
-        static void MakeAMoveByLabel(Cube SomeCube, int MoveLabel)
+        // Метод, делающий заданный ход на кубе.
+        static void MakeMove (Cube SomeCube, int MoveLabel)
         {
             switch (MoveLabel)
             {
@@ -264,18 +224,81 @@ namespace LinearClassifier
                     break;
             }
         }
-        // Перечисление ходов
-        enum Moves
+        // Метод, скрамблящий куб заданным скрамблом.
+        static void SetScramble (Cube SomeCube, int[] scramble)
         {
-            R = 1,
-            Rp = 2,
-            R2 = 3,
-            U = 4,
-            Up = 5,
-            U2 = 6,
-            F = 7,
-            Fp = 8,
-            F2 = 9
+            int i = 0;
+            while (scramble[i] > 0)
+            {
+                MakeMove(SomeCube, scramble[i]);
+                i++;
+            }
+        }
+        // Метод создания скрамбла.
+        static int[] GetScramble (int scrambleLength)
+        {
+            int[] scrambleArray = new int[scrambleLength];
+            for (byte i = 0; i < scrambleLength; i++)
+            {
+                if (i > 0)
+                {
+                    if (i <= 3)
+                    {
+                        scrambleArray[i] = Rnd.Next((int)MoveCode.U, (int)MoveCode.F2);
+                    }
+                    else if (i <= 6)
+                    {
+                        if (Rnd.NextDouble() < 0.5)
+                        {
+                            scrambleArray[i] = Rnd.Next((int)MoveCode.R, (int)MoveCode.R2);
+                        }
+                        else
+                        {
+                            scrambleArray[i] = Rnd.Next((int)MoveCode.F, (int)MoveCode.F2);
+                        }
+                        break;
+                    }
+                    else if (i <= 9)
+                    {
+                        scrambleArray[i] = Rnd.Next((int)MoveCode.R, (int)MoveCode.U2);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Получен неверный номер хода! Номер должен быть от 1 до 9.");
+                    }
+                }
+                else
+                {
+                    scrambleArray[i] = Rnd.Next(1, 9);
+                }
+            }
+            return scrambleArray;
+        }
+        // Метод вывода скрамбла.
+        static void WriteScramble(int[] scramble)
+        {
+            Console.WriteLine("Ваш скрамбл:");
+            int i = 0;
+            while (scramble[i] > 0)
+            {
+                Console.Write(scramble[i] + " ");
+                i++;
+            }
+            Console.WriteLine();
+        }
+        // Перечисление ходов.
+        enum MoveCode
+        {
+            O,
+            R,
+            Rp,
+            R2,
+            U,
+            Up,
+            U2,
+            F,
+            Fp,
+            F2
         }
     }
 }
