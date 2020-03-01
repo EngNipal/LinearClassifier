@@ -11,10 +11,10 @@ namespace LinearClassifier
         const int BigData = 1000;                                                   // Объём запоминаемых данных для обучения сети.
         const double LearningRate = 0.1;                                            // Коэффициент обучаемости.
         static Cube TrainCube = new Cube();
-        static int TaskDimension = TrainCube.State.Count;
+        static int TaskDimension = 24;
         // ReplayMemory собирает стейты, ходы и реварды в большой массив данных (см лекция 13, 1ч11мин).
-        (List<int> State, int Move, double Reward, List<int> NewState)[] ReplayMemory = new (List<int>, int, double, List<int>)[BigData * MoveQuantity];
-        (List<int> UnicState, List<double> ActionReward)[] QFunction = new (List<int>, List<double>)[MoveQuantity];
+        static (List<int> State, int Move, double Reward, List<int> NewState)[] ReplayMemory = new (List<int>, int, double, List<int>)[BigData * MoveQuantity];
+        static (List<int> UnicState, List<double> ActionReward)[] QFunction = new (List<int>, List<double>)[MoveQuantity];
         static Random Rnd = new Random();
         const double Gamma = 0.99;
         
@@ -23,7 +23,7 @@ namespace LinearClassifier
         // Выходной слой.
         static Layer OutputLayer = new Layer(OutputDimension, LayerDimension);
 
-        void Main(string[] args)
+        static void Main(string[] args)
         {
             TrainCube.SetSolved();                                                      // Установка исходной позиции на кубе.
             Layer_1.WeightsInitialization();                                            // Инициализация весов всех нейронов.
@@ -33,16 +33,17 @@ namespace LinearClassifier
             {
                 // Создаём скрамбл.
                 int ScrLength = Rnd.Next(1, 10);                                        // Рандомная длина скрамбла от 1 до 10.
-                int[] Scramble = new int[ScrLength];
+                int[] Scramble = new int[ScrLength + 1];
                 Scramble = GetScramble(ScrLength);
                 WriteScramble(Scramble);
                 SetScramble(TrainCube, Scramble);                                       // Скрамблим куб.
+                TrainCube.Print();
                 // Rollout - Основной прогон, генерирующий набор из MoveQuantity ходов.
                 int Rollout = 0;
-                while (Rollout < MoveQuantity)
+                while (Rollout < MoveQuantity && !TrainCube.IsSolved())
                 {
                     int DataCounter = Episode + Rollout;                                // Счётчик туплов в ReplayMemory.
-                    int QMove = (int)Moves.O;                                           // Содержит ход, который будем делать.
+                    int QMove = 0;                                           // Содержит ход, который будем делать.
                     int Discount = Rollout + 1;
                     int NextMove;
                     ReplayMemory[DataCounter].State = TrainCube.State;                  // TODO: Выяснить передаётся по значению или по ссылке.
@@ -51,7 +52,7 @@ namespace LinearClassifier
                     if (QIndex != -1)                                                   // Минус 1 - признак того, что нет такого стейта.
                     { // Есть уже такой текущий стейт.
                         QMove = Argmax(QFunction[QIndex].ActionReward);                 // Получаем топ ход из Q-функции
-                        ProbabilityMove(TrainCube, QMove, 0.1, out QMove);              // Делаем ход на кубе с некоторой вероятностью.
+                        ProbabilityMove(TrainCube, QMove + 1, 0.1, out QMove);          // Делаем ход на кубе с некоторой вероятностью.
                         ReplayMemory[DataCounter].Move = QMove;                         // Запоминаем сделанный ход.
                         ReplayMemory[DataCounter].NewState = TrainCube.State;           // Запоминаем новый стейт.
                         NextQIndex = ExistIndex(TrainCube.State);                       // Ищем новый стейт в Q-функции.
@@ -78,7 +79,7 @@ namespace LinearClassifier
                         QFunction[UnicsCounter].UnicState = TrainCube.State;                // Прописываем новый стейт в Q-функцию.
                         QFunction[UnicsCounter].ActionReward = NeuralNetwork(TrainCube);    // TODO: Выяснить передаётся по значению или по ссылке.
                         QMove = Argmax(QFunction[UnicsCounter].ActionReward);               // Получаем топ ход из Q-функции.
-                        ProbabilityMove(TrainCube, QMove, 0.1, out QMove);                  // Делаем ход на кубе с некоторой вероятностью.
+                        ProbabilityMove(TrainCube, QMove + 1, 0.1, out QMove);              // Делаем ход на кубе с некоторой вероятностью.
                         ReplayMemory[DataCounter].Move = QMove;                             // Запоминаем сделанный ход.
                         ReplayMemory[DataCounter].NewState = TrainCube.State;               // Запоминаем новый стейт.
                         NextQIndex = ExistIndex(TrainCube.State);                           // Ищем новый стейт в Q-функции.
@@ -103,19 +104,20 @@ namespace LinearClassifier
                     }
                     // TODO: Minibatch and GradientDescend.
 
-                    //Console.WriteLine($"Ход сети №{RolloutCounter + 1}: {QMove}");
+
+                    //Console.Write($"Ход сети №{Rollout + 1}: {QMove + 1}");
                     //Console.ReadLine();
                     Rollout++;
                 }
             }
         }
-        
+
         // *******************************
         // ***** Используемые методы *****
         // *******************************
-        
-        // Проверяет есть ли новое состояние в Q-функции.
-        private int ExistIndex(List<int> state)
+
+        // Выдаёт номер под которым стоит новое состояние в Q-функции и (-1) если такого состояния нет.
+        private static int ExistIndex(List<int> state)
         {
             int i = 0;
             int result = -1;
@@ -129,7 +131,7 @@ namespace LinearClassifier
             }
             return result;
         }
-        private int Argmax(List<double> policy)
+        private static int Argmax(List<double> policy)
         {
             int result = 0;
             double max = double.MinValue;
@@ -138,13 +140,13 @@ namespace LinearClassifier
                 if (max < policy[i])
                 {
                     max = policy[i];
-                    result = i + 1;
+                    result = i;
                 }
             }
             return result;
         }
         // Метод прогоняющий данные через нейронную сеть.
-        private List<double> NeuralNetwork(Cube SomeCube)
+        private static List<double> NeuralNetwork(Cube SomeCube)
         {            
             List<double> Layer_1_Output = new List<double>(LayerDimension);
             List<double> resultPolicy = new List<double>(OutputDimension);
@@ -183,6 +185,7 @@ namespace LinearClassifier
         static void ProbabilityMove(Cube SomeCube, int SomeMove, double Probability, out int qmove)
         {
             double Epsilon = Rnd.NextDouble();
+            qmove = 0;
             if (Epsilon > Probability)
             {
                 MakeMove(TrainCube, SomeMove);
@@ -190,14 +193,14 @@ namespace LinearClassifier
             else
             {
                 int old = SomeMove;
-                SomeMove = Rnd.Next(1, 9);
+                SomeMove = Rnd.Next(0, 8);
                 while (SomeMove == old)
                 {
-                    SomeMove = Rnd.Next(1, 9);
+                    SomeMove = Rnd.Next(0, 8);
                 }
-                MakeMove(TrainCube, SomeMove);
+                MakeMove(TrainCube, SomeMove + 1);
+                qmove = SomeMove;
             }
-            qmove = SomeMove;
         }
         // Метод, делающий заданный ход на кубе.
         static void MakeMove (Cube SomeCube, int MoveLabel)
@@ -237,7 +240,7 @@ namespace LinearClassifier
         static void SetScramble (Cube SomeCube, int[] scramble)
         {
             int i = 0;
-            while (scramble[i] > 0)
+            while ( scramble[i] > 0)
             {
                 MakeMove(SomeCube, scramble[i]);
                 i++;
@@ -246,30 +249,31 @@ namespace LinearClassifier
         // Метод создания скрамбла.
         private static int[] GetScramble (int scrambleLength)
         {
-            int[] scrambleArray = new int[scrambleLength];
+            int[] scArray = new int[scrambleLength + 1];
             for (byte i = 0; i < scrambleLength; i++)
             {
                 if (i > 0)
                 {
-                    if (i <= 3)
+                    int prev = scArray[i - 1];
+                    if (prev == 1 || prev == 2 || prev == 3)
                     {
-                        scrambleArray[i] = Rnd.Next((int)Moves.U, (int)Moves.F2);
+                        scArray[i] = Rnd.Next((int)Moves.U, (int)Moves.F2);
                     }
-                    else if (i <= 6)
+                    else if (prev == 4 || prev == 5 || prev == 6)
                     {
                         if (Rnd.NextDouble() < 0.5)
                         {
-                            scrambleArray[i] = Rnd.Next((int)Moves.R, (int)Moves.R2);
+                            scArray[i] = Rnd.Next((int)Moves.R, (int)Moves.R2);
                         }
                         else
                         {
-                            scrambleArray[i] = Rnd.Next((int)Moves.F, (int)Moves.F2);
+                            scArray[i] = Rnd.Next((int)Moves.F, (int)Moves.F2);
                         }
                         break;
                     }
-                    else if (i <= 9)
+                    else if (prev == 7 || prev == 8 || prev == 9)
                     {
-                        scrambleArray[i] = Rnd.Next((int)Moves.R, (int)Moves.U2);
+                        scArray[i] = Rnd.Next((int)Moves.R, (int)Moves.U2);
                     }
                     else
                     {
@@ -278,17 +282,17 @@ namespace LinearClassifier
                 }
                 else
                 {
-                    scrambleArray[i] = Rnd.Next(1, 9);
+                    scArray[i] = Rnd.Next(1, 9);
                 }
             }
-            return scrambleArray;
+            return scArray;
         }
         // Метод вывода скрамбла.
         static void WriteScramble(int[] scramble)
         {
             Console.WriteLine("Ваш скрамбл:");
             int i = 0;
-            while (scramble[i] > 0)
+            while ( scramble[i] > 0)
             {
                 Console.Write(scramble[i] + " ");
                 i++;

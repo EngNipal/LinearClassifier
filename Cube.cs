@@ -14,7 +14,7 @@ namespace LinearClassifier
             get { return _state; }
             set
             {
-                if (value.Capacity == Elements)
+                if (value.Count == Elements && value.GetType() == _state.GetType())
                 {
                     for (int i = 0; i < Elements; i++)
                     {
@@ -24,7 +24,7 @@ namespace LinearClassifier
                 }
                 else
                 {
-                    Console.WriteLine("А у вас ошибка! Количество входных элементов не соответствует количеству, установленному для куба");
+                    Console.WriteLine("А у вас ошибка! Количество или тип входных элементов не соответствует количеству или типу, установленным для куба");
                 }
                 
             }

@@ -35,8 +35,8 @@ namespace LinearClassifier
             { return _neurons; }
             set
             {
-                bool _volume = value.Count == _neurons.Count;         // Проверка соответствия объёмов.
-                bool _type = true;                                    // TODO: Написать проверку соответствия типов.
+                bool _volume = value.Count == _neurons.Count;               // Проверка соответствия объёмов.
+                bool _type = value.GetType() == _neurons.GetType();         // Проверка соответствия типов.
                 if (_volume && _type)
                 {
                     List<Neuron> element = value;

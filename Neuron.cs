@@ -14,7 +14,6 @@ namespace LinearClassifier
             {
                 Inputs.Add(startValue);
                 Weights.Add(startValue);
-                //Inputs.ForEach();
             }
         }
         // Количество входов нейрона.
@@ -36,15 +35,14 @@ namespace LinearClassifier
             { return _inputs; }
             set
             {
-                if (value.Count == _inputs.Count)
+                if (value.Count == _inputs.Count && value.GetType() == _inputs.GetType())
                 {
                     List<double> element = value;
                     _inputs = element;
                 }
                 else
                 {
-                    Console.WriteLine("А у вас ошибка! Количество входных Inputs не соответствует количеству, установленному для нейрона");
-                    // Exception
+                    Console.WriteLine("А у вас ошибка! Количество или тип входных Inputs не соответствует количеству или типу, установленным для нейрона");
                 }
             }
         }
@@ -53,29 +51,41 @@ namespace LinearClassifier
         public List<double> Weights
         {
             get
-            { return _weights; }
+            {
+                return _weights;
+            }
             set
             {
-                if (value.Count == _weights.Count)
+                if (value.Count == _weights.Count && value.GetType() == _weights.GetType())
                 {
                     List<double> element = value;
                     _weights = element;
                 }
                 else
                 {
-                    Console.WriteLine("А у вас ошибка! Количество входных Weights не соответствует количеству, установленному для нейрона");
-                    // Exception
+                    Console.WriteLine("А у вас ошибка! Количество или тип входных Weights не соответствует количеству или типу, установленным для нейрона");
                 }
             }
         }
         // Вес смещения.
         private double _bias { get; set; }
-        public double Bias                              // TODO: Написать проверки.
+        public double Bias
         {
             get
-            { return _bias; }
+            {
+                return _bias;
+            }
             set
-            { _bias = value; }
+            {
+                if (value.GetType() == _bias.GetType())
+                {
+                    _bias = value;
+                }
+                else
+                {
+                    Console.WriteLine("А у вас ошибка! Тип входного Bias не соответствует типу, установленному для нейрона");
+                }
+            }
         }
         // Сумматор
         internal void SetOutput()
@@ -91,7 +101,10 @@ namespace LinearClassifier
         private double _output { get; set; }
         public double Output
         {
-            get { return _output; }            
+            get
+            {
+                return _output;
+            }
         }
     }
 }
