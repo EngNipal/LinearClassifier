@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LinearClassifier
 {
@@ -25,12 +26,12 @@ namespace LinearClassifier
 
         static void Main(string[] args)
         {
-            TrainCube.SetSolved();                                                      // Установка исходной позиции на кубе.
             Layer_1.WeightsInitialization();                                            // Инициализация весов всех нейронов.
             OutputLayer.WeightsInitialization();
             int UnicsCounter = 0;                                                       // Счётчик уникальных состояний в Q-функции.
             for (int Episode = 0; Episode < BigData; Episode++)
             {
+                TrainCube.SetSolved();                                                  // Установка исходной позиции на кубе.
                 // Создаём скрамбл.
                 int ScrLength = Rnd.Next(1, 10);                                        // Рандомная длина скрамбла от 1 до 10.
                 int[] Scramble = new int[ScrLength + 1];
@@ -43,70 +44,66 @@ namespace LinearClassifier
                 while (Rollout < MoveQuantity && !TrainCube.IsSolved())
                 {
                     int DataCounter = Episode + Rollout;                                // Счётчик туплов в ReplayMemory.
-                    int QMove = 0;                                           // Содержит ход, который будем делать.
+                    int QAction = (int)Moves.O;                                         // Содержит ход, который будем делать.
                     int Discount = Rollout + 1;
                     int NextMove;
-                    ReplayMemory[DataCounter].State = TrainCube.State;                  // TODO: Выяснить передаётся по значению или по ссылке.
-                    int QIndex = ExistIndex(TrainCube.State);
+                    ReplayMemory[DataCounter].State = TrainCube.GetState();
+                    int QIndex = ExistQIndex(TrainCube.GetState());
                     int NextQIndex;
-                    if (QIndex != -1)                                                   // Минус 1 - признак того, что нет такого стейта.
+                    if (QIndex != -1)                                                           // Минус 1 - признак того, что нет такого стейта.
                     { // Есть уже такой текущий стейт.
-                        QMove = Argmax(QFunction[QIndex].ActionReward);                 // Получаем топ ход из Q-функции
-                        ProbabilityMove(TrainCube, QMove + 1, 0.1, out QMove);          // Делаем ход на кубе с некоторой вероятностью.
-                        ReplayMemory[DataCounter].Move = QMove;                         // Запоминаем сделанный ход.
-                        ReplayMemory[DataCounter].NewState = TrainCube.State;           // Запоминаем новый стейт.
-                        NextQIndex = ExistIndex(TrainCube.State);                       // Ищем новый стейт в Q-функции.
+                        QAction = Argmax(QFunction[QIndex].ActionReward);                       // Получаем топ ход из Q-функции
+                        ProbabilityMove(TrainCube, QAction + 1, 0.1, out QAction);              // Делаем ход на кубе с некоторой вероятностью (0.1).
+                        ReplayMemory[DataCounter].Move = QAction;                               // Запоминаем сделанный ход.
+                        ReplayMemory[DataCounter].NewState = TrainCube.GetState();              // Запоминаем новый стейт.
+                        NextQIndex = ExistQIndex(TrainCube.GetState());                         // Ищем новый стейт в Q-функции.
                         if (NextQIndex != -1)
                         { // Есть такой новый стейт.
                             NextMove = Argmax(QFunction[NextQIndex].ActionReward);
-                            // Изменяем исходный Reward сделанного хода.
-                            QFunction[QIndex].ActionReward[QMove] += Math.Pow(Gamma, Discount) * QFunction[NextQIndex].ActionReward[NextMove];
-                            ReplayMemory[DataCounter].Reward = QFunction[QIndex].ActionReward[QMove];
+                            // Запоминаем Reward, полученный от Environment после сделанного хода.
+                            ReplayMemory[DataCounter].Reward = EnviornmentReward(Rollout);
                         }
                         else
                         { // Нет такого нового стейта.
                             QFunction[UnicsCounter].UnicState = TrainCube.State;
                             QFunction[UnicsCounter].ActionReward = NeuralNetwork(TrainCube);
-                            NextMove = Argmax(QFunction[NextQIndex].ActionReward);
-                            // Изменяем исходный Reward сделанного хода.
-                            QFunction[QIndex].ActionReward[QMove] += Math.Pow(Gamma, Discount) * QFunction[NextQIndex].ActionReward[NextMove];
-                            ReplayMemory[DataCounter].Reward = QFunction[QIndex].ActionReward[QMove];
+                            NextMove = Argmax(QFunction[UnicsCounter].ActionReward);
                             UnicsCounter++;
+                            // Изменяем исходный Reward сделанного хода.
+                            ReplayMemory[DataCounter].Reward = EnviornmentReward(Rollout);
                         }
                     }
                     else
                     { // Нет такого текущего стейта.
-                        QFunction[UnicsCounter].UnicState = TrainCube.State;                // Прописываем новый стейт в Q-функцию.
-                        QFunction[UnicsCounter].ActionReward = NeuralNetwork(TrainCube);    // TODO: Выяснить передаётся по значению или по ссылке.
-                        QMove = Argmax(QFunction[UnicsCounter].ActionReward);               // Получаем топ ход из Q-функции.
-                        ProbabilityMove(TrainCube, QMove + 1, 0.1, out QMove);              // Делаем ход на кубе с некоторой вероятностью.
-                        ReplayMemory[DataCounter].Move = QMove;                             // Запоминаем сделанный ход.
-                        ReplayMemory[DataCounter].NewState = TrainCube.State;               // Запоминаем новый стейт.
-                        NextQIndex = ExistIndex(TrainCube.State);                           // Ищем новый стейт в Q-функции.
+                        QFunction[UnicsCounter].UnicState = TrainCube.GetState();               // Прописываем новый стейт в Q-функцию.
+                        QFunction[UnicsCounter].ActionReward = NeuralNetwork(TrainCube);        // TODO: Выяснить передаётся по значению или по ссылке. - Создать интерфейс (стр. 182 Троелсен).
+                        QAction = Argmax(QFunction[UnicsCounter].ActionReward);                 // Получаем топ ход из Q-функции.
+                        UnicsCounter++;
+                        ProbabilityMove(TrainCube, QAction + 1, 0.1, out QAction);              // Делаем ход на кубе с некоторой вероятностью (0.1).
+                        ReplayMemory[DataCounter].Move = QAction;                               // Запоминаем сделанный ход.
+                        ReplayMemory[DataCounter].NewState = TrainCube.GetState();              // Запоминаем новый стейт.
+                        NextQIndex = ExistQIndex(TrainCube.GetState());                         // Ищем новый стейт в Q-функции.
                         if (NextQIndex != -1)
                         { // Есть такой новый стейт.
                             NextMove = Argmax(QFunction[NextQIndex].ActionReward);
                             // Изменяем исходный Reward сделанного хода.
-                            QFunction[UnicsCounter].ActionReward[NextMove] += Math.Pow(Gamma, Discount) * QFunction[NextQIndex].ActionReward[NextMove];
-                            ReplayMemory[DataCounter].Reward = QFunction[UnicsCounter].ActionReward[NextMove];
-                            UnicsCounter++;
+                            ReplayMemory[DataCounter].Reward = EnviornmentReward(Rollout);
                         }
                         else
                         { // Нет такого нового стейта.
-                            QFunction[UnicsCounter + 1].UnicState = TrainCube.State;
-                            QFunction[UnicsCounter + 1].ActionReward = NeuralNetwork(TrainCube);
-                            NextMove = Argmax(QFunction[NextQIndex].ActionReward);
-                            // Изменяем исходный Reward сделанного хода.
-                            QFunction[UnicsCounter].ActionReward[QMove] += Math.Pow(Gamma, Discount) * QFunction[UnicsCounter + 1].ActionReward[NextMove];
-                            ReplayMemory[DataCounter].Reward = QFunction[UnicsCounter].ActionReward[QMove];
+                            QFunction[UnicsCounter].UnicState = TrainCube.GetState();
+                            QFunction[UnicsCounter].ActionReward = NeuralNetwork(TrainCube);
+                            NextMove = Argmax(QFunction[UnicsCounter].ActionReward);
                             UnicsCounter++;
+                            // Изменяем исходный Reward сделанного хода.
+                            ReplayMemory[DataCounter].Reward = EnviornmentReward(Rollout);
                         }
                     }
                     // TODO: Minibatch and GradientDescend.
 
 
-                    //Console.Write($"Ход сети №{Rollout + 1}: {QMove + 1}");
-                    //Console.ReadLine();
+                    Console.Write($"Ход сети №{Rollout + 1}: {QAction + 1}");
+                    Console.ReadLine();
                     Rollout++;
                 }
             }
@@ -116,14 +113,30 @@ namespace LinearClassifier
         // ***** Используемые методы *****
         // *******************************
 
+        // Выдаёт Reward от внешней среды.
+        private static int EnviornmentReward(int rollout)
+        {
+            if (TrainCube.IsSolved())
+            {
+                return 1;
+            }
+            else if (rollout + 1 == MoveQuantity)
+            {
+                return -1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
         // Выдаёт номер под которым стоит новое состояние в Q-функции и (-1) если такого состояния нет.
-        private static int ExistIndex(List<int> state)
+        private static int ExistQIndex(List<int> state)
         {
             int i = 0;
             int result = -1;
             while (result == -1 && QFunction[i].UnicState != null)
             {
-                if (QFunction[i].UnicState == state)
+                if (state.SequenceEqual(QFunction[i].UnicState))
                 {
                     result = i;
                 }
@@ -153,10 +166,7 @@ namespace LinearClassifier
             // Передаём состояние куба на вход всем нейронам первого слоя.
             for (int i = 0; i < LayerDimension; i++)
             {
-                for (int j = 0; j < TaskDimension; j++)
-                {
-                    Layer_1.Neurons[i].Inputs[j] = SomeCube.State[j];
-                }
+                Layer_1.Neurons[i].Inputs = SomeCube.GetStateToDouble();
             }
             Layer_1_Output = Layer_1.ReLu();                                    // Функция нелинейности.
             //Layer_1_Output = Layer_1.Sigmoid();                               // - Другая функция нелинейности.
@@ -188,7 +198,7 @@ namespace LinearClassifier
             qmove = 0;
             if (Epsilon > Probability)
             {
-                MakeMove(TrainCube, SomeMove);
+                MakeMove(SomeCube, SomeMove);
             }
             else
             {
@@ -198,7 +208,7 @@ namespace LinearClassifier
                 {
                     SomeMove = Rnd.Next(0, 8);
                 }
-                MakeMove(TrainCube, SomeMove + 1);
+                MakeMove(SomeCube, SomeMove + 1);
                 qmove = SomeMove;
             }
         }

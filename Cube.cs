@@ -3,10 +3,15 @@ using System.Collections.Generic;
 
 namespace LinearClassifier
 {
-    public class Cube
+    public class Cube : ICloneable
     {
         // Константа, определяющая количество "наклеек" куба
         private const byte Elements = 24;
+        // Реализация интерфейса IClonable.
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
         // Массив, содержащий состояние куба
         private List<int> _state = new List<int>(Elements);
         public List<int> State
@@ -29,6 +34,40 @@ namespace LinearClassifier
                 
             }
         }
+        // Метод задания некоторого состояния куба извне.
+        public void SetState(List<int> SomeState)
+        {
+            if (SomeState.Count == Elements)
+            {
+                for (int i = 0; i < Elements; i++)
+                {
+                    State[i] = SomeState[i];
+                }
+            }
+            else
+            {
+                Console.WriteLine("А у вас ошибка! Количество входных элементов не соответствует количеству, установленному для куба");
+            }
+        }
+        // Методы выдачи текущего состояния куба.
+        public List<int> GetState()
+        {
+            List<int> result = new List<int>(Elements);
+            for (int i = 0; i < Elements; i++)
+            {
+                result.Add(_state[i]);
+            }
+            return result;
+        }
+        public List<double> GetStateToDouble()
+        {
+            List<double> result = new List<double>(Elements);
+            for (int i = 0; i < Elements; i++)
+            {
+                result.Add(_state[i]);
+            }
+            return result;
+        }
         // Далее методы, реализующие ходы (R, R' - Rp, R2, U, U', U2, F, F', F2).
         public void MoveR()
         {
@@ -43,6 +82,7 @@ namespace LinearClassifier
             _state[11] = _state[23];
             _state[23] = _state[16];
             _state[16] = Changer;
+            //
             Changer = _state[12];
             _state[12] = _state[14];
             _state[14] = _state[15];
@@ -62,6 +102,7 @@ namespace LinearClassifier
             _state[16] = _state[23];
             _state[23] = _state[11];
             _state[11] = Changer;
+            //
             Changer = _state[12];
             _state[12] = _state[13];
             _state[13] = _state[15];
@@ -78,11 +119,12 @@ namespace LinearClassifier
             _state[3] = _state[23];
             _state[23] = Changer;
             Changer = _state[9];
-            _state[9] = _state[19];
-            _state[19] = Changer;
+            _state[9] = _state[18];
+            _state[18] = Changer;
             Changer = _state[11];
-            _state[11] = _state[17];
-            _state[17] = Changer;
+            _state[11] = _state[16];
+            _state[16] = Changer;
+            //
             Changer = _state[12];
             _state[12] = _state[15];
             _state[15] = Changer;
@@ -103,6 +145,7 @@ namespace LinearClassifier
             _state[9] = _state[13];
             _state[13] = _state[17];
             _state[17] = Changer;
+            //
             Changer = _state[0];
             _state[0] = _state[2];
             _state[2] = _state[3];
@@ -122,6 +165,7 @@ namespace LinearClassifier
             _state[17] = _state[13];
             _state[13] = _state[9];
             _state[9] = Changer;
+            //
             Changer = _state[0];
             _state[0] = _state[1];
             _state[1] = _state[3];
@@ -143,6 +187,7 @@ namespace LinearClassifier
             Changer = _state[9];
             _state[9] = _state[17];
             _state[17] = Changer;
+            //
             Changer = _state[0];
             _state[0] = _state[3];
             _state[3] = Changer;
@@ -163,6 +208,7 @@ namespace LinearClassifier
             _state[5] = _state[20];
             _state[20] = _state[14];
             _state[14] = Changer;
+            //
             Changer = _state[8];
             _state[8] = _state[10];
             _state[10] = _state[11];
@@ -175,13 +221,14 @@ namespace LinearClassifier
             Changer = _state[2];
             _state[2] = _state[12];
             _state[12] = _state[21];
-            _state[21] = _state[11];
-            _state[11] = Changer;
+            _state[21] = _state[7];
+            _state[7] = Changer;
             Changer = _state[3];
             _state[3] = _state[14];
             _state[14] = _state[20];
             _state[20] = _state[5];
             _state[5] = Changer;
+            //
             Changer = _state[8];
             _state[8] = _state[9];
             _state[9] = _state[11];
@@ -194,19 +241,20 @@ namespace LinearClassifier
             Changer = _state[2];
             _state[2] = _state[21];
             _state[21] = Changer;
-            Changer = _state[7];
-            _state[7] = _state[12];
-            _state[12] = Changer;
             Changer = _state[3];
             _state[3] = _state[20];
             _state[20] = Changer;
             Changer = _state[5];
             _state[5] = _state[14];
             _state[14] = Changer;
+            Changer = _state[7];
+            _state[7] = _state[12];
+            _state[12] = Changer;
+            //
             Changer = _state[8];
             _state[8] = _state[11];
             _state[11] = Changer;
-            Changer = _state[8];
+            Changer = _state[9];
             _state[9] = _state[10];
             _state[10] = Changer;
         }
