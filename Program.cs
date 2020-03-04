@@ -172,8 +172,8 @@ namespace LinearClassifier
             //Layer_1_Output = Layer_1.Sigmoid();                               // - Другая функция нелинейности.
             // Передаём выход первого слоя на вход нейронам выходного слоя.
             // Считаем выходное значение каждого нейрона (метод SetOutput).
-            double SumOfExponents = 0.0;
-            double Average = 0.0;                                               // Усреднение выходных значений выходного слоя.
+            // И записываем это значение в выход неросети.
+            double Average = 0;
             foreach (Neuron neuron in OutputLayer.Neurons)
             {
                 neuron.Inputs = Layer_1_Output;
@@ -181,13 +181,9 @@ namespace LinearClassifier
                 Average += neuron.Output;
             }
             Average /= OutputDimension;
-            foreach (Neuron neuron in OutputLayer.Neurons)
-            {
-                SumOfExponents += Math.Exp(neuron.Output - Average);
-            }
             for (int i = 0; i < OutputDimension; i++)
             {
-                resultPolicy.Add(Math.Exp(OutputLayer.Neurons[i].Output - Average) / SumOfExponents);
+                resultPolicy.Add(OutputLayer.Neurons[i].Output - Average);
             }
             return resultPolicy;
         }
