@@ -6,16 +6,16 @@ namespace LinearClassifier
 {
     class Program
     {
-        const int MoveQuantity = 100;                                               // Number of moves for one rollout.
+        const int MoveQuantity = 128;                                               // Number of moves for one rollout.
         const int LayerDimension = 64;                                              // Размер первого слоя.
         const int OutputDimension = 9;                                              // Размер выходного слоя = количество допустимых действий (ходов).
-        const int BigData = 1000;                                                   // Объём запоминаемых данных для обучения сети.
+        const int BigData = 1024;                                                   // Объём запоминаемых данных для обучения сети.
         const double LearningRate = 0.1;                                            // Коэффициент обучаемости.
         static Cube TrainCube = new Cube();
         static int TaskDimension = 24;
         // ReplayMemory собирает стейты, ходы и реварды в большой массив данных (см лекция 13, 1ч11мин).
         static (List<int> State, int Move, double Reward, List<int> NewState)[] ReplayMemory = new (List<int>, int, double, List<int>)[BigData * MoveQuantity];
-        static (List<int> UnicState, List<double> ActionReward)[] QFunction = new (List<int>, List<double>)[MoveQuantity];
+        private static (List<int> UnicState, List<double> ActionReward)[] QFunction = new (List<int>, List<double>)[MoveQuantity];
         static Random Rnd = new Random();
         const double Gamma = 0.99;
         
@@ -29,6 +29,8 @@ namespace LinearClassifier
             Layer_1.WeightsInitialization();                                            // Инициализация весов всех нейронов.
             OutputLayer.WeightsInitialization();
             int UnicsCounter = 0;                                                       // Счётчик уникальных состояний в Q-функции.
+            int DataCounter = 0;                                                        // Счётчик туплов в ReplayMemory.
+            List<int> TerminalState = new List<int> { 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6 };
             for (int Episode = 0; Episode < BigData; Episode++)
             {
                 TrainCube.SetSolved();                                                  // Установка исходной позиции на кубе.
@@ -43,7 +45,6 @@ namespace LinearClassifier
                 int Rollout = 0;
                 while (Rollout < MoveQuantity && !TrainCube.IsSolved())
                 {
-                    int DataCounter = Episode + Rollout;                                // Счётчик туплов в ReplayMemory.
                     int QAction = (int)Moves.O;                                         // Содержит ход, который будем делать.
                     int Discount = Rollout + 1;
                     int NextMove;
@@ -99,12 +100,42 @@ namespace LinearClassifier
                             ReplayMemory[DataCounter].Reward = EnviornmentReward(Rollout);
                         }
                     }
-                    // TODO: Minibatch and GradientDescend.
-
-
-                    Console.Write($"Ход сети №{Rollout + 1}: {QAction + 1}");
-                    Console.ReadLine();
+                    //Console.Write($"Ход сети №{Rollout + 1}: {QAction + 1}");
+                    //Console.ReadLine();
                     Rollout++;
+                    DataCounter++;
+                }
+                // TODO: Minibatch and GradientDescend.
+                int[] BatchIndex = new int[MoveQuantity];                                              // Набор номеров ReplayMemory для минибатча.
+                for (int i = 0; i < MoveQuantity; i++)
+                {
+                    BatchIndex[i] = Rnd.Next(0, DataCounter - 1);
+                }
+                double[] YTarget = new double[MoveQuantity];
+                double[] Loss = new double[MoveQuantity];
+                double[] GradLoss = new double[MoveQuantity];
+                double QValue;
+                double QNewValue;
+                int QIndex;
+                int QMax;
+                for (int i = 0; i < MoveQuantity; i++)
+                {
+                    QIndex = ExistQIndex(ReplayMemory[BatchIndex[i]].NewState);
+                    QMax = Argmax(QFunction[QIndex].ActionReward);
+                    QNewValue = QFunction[QIndex].ActionReward[QMax];               // <----- Q-function для NewState из ReplayMemory.
+                    QIndex = ExistQIndex(ReplayMemory[BatchIndex[i]].State);
+                    QMax = Argmax(QFunction[QIndex].ActionReward);
+                    QValue = QFunction[QIndex].ActionReward[QMax];                  // <----- Q-function для State из ReplayMemory.
+                    if (ReplayMemory[BatchIndex[i]].NewState.SequenceEqual(TerminalState))
+                    {
+                        YTarget[i] = ReplayMemory[BatchIndex[i]].Reward;
+                    }
+                    else
+                    {
+                        YTarget[i] = ReplayMemory[BatchIndex[i]].Reward + Gamma * QNewValue;
+                    }
+                    Loss[i] = (YTarget[i] - QValue)* (YTarget[i] - QValue);
+                    //GradLoss[i]=
                 }
             }
         }
@@ -168,15 +199,21 @@ namespace LinearClassifier
             {
                 Layer_1.Neurons[i].Inputs = SomeCube.GetStateToDouble();
             }
-            Layer_1_Output = Layer_1.ReLu();                                    // Функция нелинейности.
-            //Layer_1_Output = Layer_1.Sigmoid();                               // - Другая функция нелинейности.
+            for (int i = 0; i < LayerDimension; i++)
+            {
+                Layer_1_Output[i] = Layer_1.ReLu()[i];                                    // Функция нелинейности.
+                //Layer_1_Output[i] = Layer_1.Sigmoid()[i];                               // - Другая функция нелинейности.
+            }
             // Передаём выход первого слоя на вход нейронам выходного слоя.
             // Считаем выходное значение каждого нейрона (метод SetOutput).
             // И записываем это значение в выход неросети.
             double Average = 0;
             foreach (Neuron neuron in OutputLayer.Neurons)
             {
-                neuron.Inputs = Layer_1_Output;
+                for (int i = 0; i < LayerDimension; i++)
+                {
+                    neuron.Inputs[i] = Layer_1_Output[i];
+                }
                 neuron.SetOutput();
                 Average += neuron.Output;
             }
