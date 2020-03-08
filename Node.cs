@@ -8,50 +8,120 @@ namespace LinearClassifier
 {
     class Node
     {
-        public Node(Position Position, double[] MovePolicy)
+        public Node()
         {
-            this.Position = Position;
-            this.MovePolicy = MovePolicy;
+            Position = new Position();
+            Edges = new Move[Number];
+            for (int i = 0; i < Number; i++)
+            {
+                Edges[i] = new Move();
+            }
+            Indexes = new int[Number];
+            Indexes.Initialize();
         }
+        public Node (Position position, Move[] edges, int[] indexes)
+        {
+            Position = position;
+            Edges = edges;
+            Indexes = indexes;
+        }
+        // Размер массивов ходов и индексов.
+        const int Number = Program.OutputDimension;
+        // Позиция узла.
         private Position _position { get; set; }
         public Position Position
         {
             get
             {
-                Position result = _position;
+                Position result = new Position();
+                result = (Position) _position.Clone();
                 return result;
             }
             set
             {
-                Position helper = value;
-                _position = helper;
+                if (_position == null)
+                {
+                    _position = new Position();
+                }
+                if (value.GetType () == _position.GetType())
+                {
+                    Position helper = value;
+                    _position = (Position) helper.Clone();
+                }
             }
         }
-        private double Visit {get; set;}
-        private double[] _movePolicy { get; set; }
-        public double[] MovePolicy
+        // Набор ходов узла - рёбра графа.
+        private Move[] _edges { get; set; }
+        public Move[] Edges
         {
             get
             {
-                double[] result = new double[_movePolicy.Length];
-                for (int i = 0; i < _movePolicy.Length; i++)
+                if (_edges == null)
                 {
-                    result[i] = _movePolicy[i];
+                    _edges = new Move[Number];
+                    _edges.Initialize();
+                }
+                Move[] result = new Move[Number];
+                for (int i = 0; i < Number; i++)
+                {
+                    result[i] = _edges[i];
                 }
                 return result;
             }
             set
             {
-                if (value.Length == _movePolicy.Length && value.GetType() == _movePolicy.GetType())
+                if (_edges == null)
                 {
-                    for (int i = 0; i < _movePolicy.Length; i++)
+                    _edges = new Move[Number];
+                    _edges.Initialize();
+                }
+                if (value.Length == _edges.Length && value.GetType() == _edges.GetType())
+                {
+                    Move[] helper = value;
+                    for (int i = 0; i < Number; i++)
                     {
-                        _movePolicy[i] = value[i];
+                        _edges[i] = helper[i];
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Несоответствие");
+                    Console.WriteLine("Несоответствие в Node.Edges");
+                }
+            }
+        }
+        // Набор индексов, указывающих на номер позиции в дереве, согласно тому,
+        // куда ведёт соответствующий ход из массива ходов (Edges).
+        // Индекс ноль означает, что такой ход не делали, т.к. ноль в дереве зарезервирован для корневой позиции (стартовый скрамбл).
+        private int[] _indexes { get; set; }
+        public int[] Indexes
+        {
+            get
+            {
+                int[] result = new int[Number];
+                for (int i = 0; i < Number; i++)
+                {
+                    result[i] = _indexes[i];
+                }
+                return result;
+            }
+            set
+            {
+                if (_indexes == null)
+                {
+                    _indexes = new int[Number];
+                    _indexes.Initialize();
+                }
+                if (value.Length == _indexes.Length && value.GetType() == _indexes.GetType())
+                {
+                    int[] helper = value;
+                    for (int i = 0; i < Number; i++)
+                    {
+                        _indexes[i] = helper[i];
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Несоответствие в Node.Indexes");
                 }
             }
         }

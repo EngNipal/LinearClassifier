@@ -10,7 +10,8 @@ namespace LinearClassifier
         // Реализация интерфейса IClonable.
         public object Clone()
         {
-            return MemberwiseClone();
+            var NewCube = this.MemberwiseClone();
+            return (Cube) NewCube;
         }
         // Массив, содержащий состояние куба
         private List<int> _state = new List<int>(Elements);
@@ -41,7 +42,7 @@ namespace LinearClassifier
             {
                 for (int i = 0; i < Elements; i++)
                 {
-                    State[i] = SomeState[i];
+                    State.Add(SomeState[i]);
                 }
             }
             else

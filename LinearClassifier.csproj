@@ -48,10 +48,11 @@
     <Compile Include="Cube.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Neuron.cs" />
-    <Compile Include="Node.cs" />
+    <Compile Include="Move.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Node.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
