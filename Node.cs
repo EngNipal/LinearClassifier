@@ -8,22 +8,15 @@ namespace LinearClassifier
 {
     class Node
     {
-        public Node()
-        {
-            Position = new Position();
-            Edges = new Move[Number];
-            for (int i = 0; i < Number; i++)
-            {
-                Edges[i] = new Move();
-            }
-            Indexes = new int[Number];
-            Indexes.Initialize();
-        }
+        public Node() : this(new Position())
+        { }
+        public Node (Position position) : this(position, new Move[Number], new int[Number])
+        { }
         public Node (Position position, Move[] edges, int[] indexes)
         {
-            Position = position;
-            Edges = edges;
-            Indexes = indexes;
+            Position = (Position) position.Clone();
+            edges.CopyTo(Edges, 0);
+            indexes.CopyTo(Indexes, 0);
         }
         // Размер массивов ходов и индексов.
         const int Number = Program.OutputDimension;
@@ -43,11 +36,14 @@ namespace LinearClassifier
                 {
                     _position = new Position();
                 }
-                if (value.GetType () == _position.GetType())
+                //else                                                                  // !!!!!!!!!!!!!!
+                //{
+                if (value.GetType() == _position.GetType())
                 {
                     Position helper = value;
-                    _position = (Position) helper.Clone();
+                    _position = (Position)helper.Clone();
                 }
+                //}
             }
         }
         // Набор ходов узла - рёбра графа.
@@ -56,16 +52,12 @@ namespace LinearClassifier
         {
             get
             {
-                if (_edges == null)
-                {
-                    _edges = new Move[Number];
-                    _edges.Initialize();
-                }
                 Move[] result = new Move[Number];
-                for (int i = 0; i < Number; i++)
-                {
-                    result[i] = _edges[i];
-                }
+                //if (_edges == null)
+                //{
+                //    _edges = new Move[Number];                                        // !!!!!!!!!!!!!!!!!!
+                //}
+                _edges.CopyTo(result, 0);
                 return result;
             }
             set
@@ -73,20 +65,23 @@ namespace LinearClassifier
                 if (_edges == null)
                 {
                     _edges = new Move[Number];
-                    _edges.Initialize();
+                    for (int i = 0; i < Number; i++)
+                    {
+                        _edges[i] = new Move(0, 0, 0);                                  // !!!!!!!!!!!!!!!!!!!!!
+                    }
                 }
+                //else
+                //{
                 if (value.Length == _edges.Length && value.GetType() == _edges.GetType())
                 {
                     Move[] helper = value;
-                    for (int i = 0; i < Number; i++)
-                    {
-                        _edges[i] = helper[i];
-                    }
+                    _edges = helper;
                 }
                 else
                 {
                     Console.WriteLine("Несоответствие в Node.Edges");
                 }
+                //}
             }
         }
         // Набор индексов, указывающих на номер позиции в дереве, согласно тому,
@@ -98,10 +93,7 @@ namespace LinearClassifier
             get
             {
                 int[] result = new int[Number];
-                for (int i = 0; i < Number; i++)
-                {
-                    result[i] = _indexes[i];
-                }
+                _indexes.CopyTo(result, 0);
                 return result;
             }
             set
@@ -109,20 +101,19 @@ namespace LinearClassifier
                 if (_indexes == null)
                 {
                     _indexes = new int[Number];
-                    _indexes.Initialize();
                 }
+                //else
+                //{
                 if (value.Length == _indexes.Length && value.GetType() == _indexes.GetType())
                 {
                     int[] helper = value;
-                    for (int i = 0; i < Number; i++)
-                    {
-                        _indexes[i] = helper[i];
-                    }
+                    helper.CopyTo(_indexes, 0);
                 }
                 else
                 {
                     Console.WriteLine("Несоответствие в Node.Indexes");
                 }
+                //}
             }
         }
     }

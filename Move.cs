@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LinearClassifier
 {
-    class Move
+    class Move : ICloneable
     {
         public Move()
         {
@@ -19,6 +19,16 @@ namespace LinearClassifier
             this.Policy = Policy;
             this.Visit = Visit;
             this.Quality = Quality;
+        }
+        // Интерфейс для возможности копирования экземпляра объекта.
+        public object Clone()
+        {
+            return new Move
+            {
+                Policy = this.Policy,
+                Visit = this.Visit,
+                Quality = this.Quality
+            };
         }
         // Вероятность хода, выдаваемая нейросетью.
         private double _policy { get; set; }
@@ -58,7 +68,7 @@ namespace LinearClassifier
                 {
                     int helper = value;
                     _visit = helper;
-                    UpperBound = Policy / (1 + _visit);
+                    UpperBound = _policy / (1 + _visit);
                 }
                 else
                 {

@@ -51,11 +51,12 @@ namespace LinearClassifier
                 {
                     Cube MCTSCube = new Cube();
                     MCTSCube.SetState(TrainCube.GetState());                                    // Копия куба, чтобы не испортить TrainCube.
-                    int UnicsCounter = 0;                                                       // Счётчик уникальных позиций.
                     // Дерево - массив нодов.
                     Node[] Tree = new Node[MaxNodes];
+                    int UnicsCounter = 0;                                                       // Счётчик уникальных позиций в дереве.
                     // Список, запоминающий пройденный "вниз" путь в виде пары (номер_позиции_в_дереве, номер_выбранного_хода_в_ней).
                     List<(int, int)> Way = new List<(int, int)>();
+                    Way.Add((0, 0));
                     int NextMove = 0;                                                           // Указатель на следующий ход.
                     // MCTS
                     for (int MCTS = 0; MCTS < MaxNodes; MCTS++)
@@ -76,10 +77,7 @@ namespace LinearClassifier
                         else
                         {// Не было такой позиции в дереве (лист дерева).
                             // Добавляем позицию в дерево.
-                            Tree[UnicsCounter] = new Node
-                            {
-                                Position = (Position)NewPos.Clone()
-                            };
+                            Tree[UnicsCounter] = new Node(NewPos);
                             // Инициализация всех ходов для новой позиции. И запись ходов в дерево.
                             MoveArray = NeuralNetwork(MCTSCube);
                             //Tree[UnicsCounter].Item2 = Array.CreateInstance(Move, OutputDimension); //[OutputDimension];
@@ -89,10 +87,6 @@ namespace LinearClassifier
                                 Tree[UnicsCounter].Edges[i] = new Move(MoveArray[i], 0, 0);
                             }
                             // Обновление Visit и Quality для всех вышестоящих позиций в данном пути (Way).
-                            if (Way.Count == 0)
-                            {
-                                Way.Add((0, 0));
-                            }
                             for (int i = Way.Count - 1; i >= 0; i--)
                             {
                                 int it1 = Way[i].Item1;
@@ -236,7 +230,7 @@ namespace LinearClassifier
         {            
             List<double> Layer_1_Output = new List<double>(LayerDimension);
             double[] resultPolicy = new double[OutputDimension];
-            resultPolicy[0] = 0;
+            //resultPolicy[0] = 0;
             // Передаём состояние куба на вход всем нейронам первого слоя.
             for (int i = 0; i < LayerDimension; i++)
             {
@@ -355,7 +349,6 @@ namespace LinearClassifier
                         {
                             scArray[i] = Rnd.Next((int)Moves.F, (int)Moves.F2);
                         }
-                        break;
                     }
                     else if (prev == 6 || prev == 7 || prev == 8)
                     {
