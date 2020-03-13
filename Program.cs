@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LinearClassifier
 {
-    class Program
+    partial class Program
     {
         const int MoveQuantity = 128;                                               // Number of moves per rollout.
         const int MaxNodes = 1024;                                                  // Max number of nodes in MCTS.
@@ -337,22 +337,22 @@ namespace LinearClassifier
                     int prev = scArray[i - 1];
                     if (prev == 0 || prev == 1 || prev == 2)
                     {
-                        scArray[i] = Rnd.Next((int)Moves.U, (int)Moves.F2);
+                        scArray[i] = Rnd.Next((int)Direction.U, (int)Direction.F2);
                     }
                     else if (prev == 3 || prev == 4 || prev == 5)
                     {
                         if (Rnd.NextDouble() < 0.5)
                         {
-                            scArray[i] = Rnd.Next((int)Moves.R, (int)Moves.R2);
+                            scArray[i] = Rnd.Next((int)Direction.R, (int)Direction.R2);
                         }
                         else
                         {
-                            scArray[i] = Rnd.Next((int)Moves.F, (int)Moves.F2);
+                            scArray[i] = Rnd.Next((int)Direction.F, (int)Direction.F2);
                         }
                     }
                     else if (prev == 6 || prev == 7 || prev == 8)
                     {
-                        scArray[i] = Rnd.Next((int)Moves.R, (int)Moves.U2);
+                        scArray[i] = Rnd.Next((int)Direction.R, (int)Direction.U2);
                     }
                     else
                     {
@@ -379,7 +379,7 @@ namespace LinearClassifier
             Console.WriteLine();
         }
         // Перечисление ходов.
-        enum Moves
+        public enum Direction
         {
             R, Rp, R2, U, Up, U2, F, Fp, F2
         }

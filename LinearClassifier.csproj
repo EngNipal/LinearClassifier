@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cube.cs" />
+    <Compile Include="GraphPosition.cs" />
     <Compile Include="Layer.cs" />
     <Compile Include="Neuron.cs" />
     <Compile Include="Move.cs" />

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static LinearClassifier.Program;
 
 namespace LinearClassifier
 {
@@ -48,6 +49,19 @@ namespace LinearClassifier
             : this(value, (IEnumerable<int>)state)
         { }
 
+        /// <summary>Метод получения новой позиции из заданной</summary>
+        /// <param name="position">Имеющаяся позиции</param>
+        /// <param name="moves">Направление хода из позиции</param>
+        /// <returns>Новую позицию полученную ходом из заднной</returns>
+        public static Position PositionMoves(Position position, Direction moves)
+        {
+            return new Position(/* Параметры новой позиции */);
+        }
 
+        /// <summary>Метод получения новой позиции из текущей</summary>
+        /// <param name="moves">Направление хода из позиции</param>
+        /// <returns>Новую позицию полученную ходом из текущей</returns>
+        public Position PositionMoves(Direction moves)
+            => PositionMoves(this, moves);
     }
 }
